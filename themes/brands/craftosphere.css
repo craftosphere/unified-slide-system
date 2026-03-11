@@ -1,0 +1,64 @@
+/* @theme craftosphere */
+/* ═══════════════════════════════════════════════════════════════════════════
+   Craftosphere — "Elevating Software Crafting to the Stratosphere"
+   Light-first theme · Blue-indigo accent · Inter
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@import 'base';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap');
+
+:root {
+  --brand-name:          'Craftosphere';
+  --logo-url:            url('./assets/craftosphere-logo.svg');
+  --logo-light-url:      url('./assets/craftosphere-logo-light.svg');
+  --logo-width:          145px;
+
+  /* ─── Palette ───────────────────────────────────────────────────────── */
+  --color-primary:       #155dfc;
+  --color-primary-light: #5969fc;
+  --color-primary-dark:  #0e3fc2;
+  --color-accent:        #5969fc;
+  --color-accent-light:  #8b96ff;
+  --color-secondary:     #7c3aed;
+  --color-secondary-light:#a78bfa;
+  --color-secondary-dark:#6d28d9;
+  --text-on-secondary:   #ffffff;
+  --text-on-accent:      #ffffff;
+
+  /* ─── Light mode (default) ──────────────────────────────────────────── */
+  --bg:                  #ffffff;
+  --bg-surface:          #f6f7f9;
+  --bg-elevated:         #eef0f4;
+  --bg-code:             #0a0a0a;
+  --text:                #0a0a0a;
+  --text-secondary:      #3b3b3b;
+  --text-muted:          #707070;
+  --text-on-primary:     #ffffff;
+  --text-on-code:        #e2e8f0;
+  --border:              #e0e4ea;
+
+  /* ─── Typography ────────────────────────────────────────────────────── */
+  --font-heading:        'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-body:           'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ─── Craftosphere dark mode ──────────────────────────────────────────── */
+section.dark {
+  --bg:             #0a0a0a;
+  --bg-surface:     #161616;
+  --bg-elevated:    #222222;
+  --text:           #f0f0f0;
+  --text-secondary: #c0c0c0;
+  --text-muted:     #909090;
+  --border:         #2a2a2a;
+  --color-scheme:   dark;
+}
+
+/* ─── Clean title slide ───────────────────────────────────────────────── */
+section.title {
+  background: linear-gradient(135deg, #0e3fc2 0%, #155dfc 50%, #5969fc 100%);
+}
+
+section.end {
+  background: linear-gradient(135deg, #155dfc, #4555d4);
+}

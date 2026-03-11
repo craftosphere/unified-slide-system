@@ -1,0 +1,1529 @@
+/* @theme base */
+
+/*
+ * ============================================================================
+ * BASE THEME — Partnership Marp Presentation System
+ * ============================================================================
+ *
+ * This is the structural foundation. It defines:
+ *   - Layout grid, spacing, typography scale
+ *   - Slide layout variants (via classes)
+ *   - Animation system (element + slide transitions)
+ *   - View Transition morph (element morphing between slides)
+ *   - Light / dark mode switching
+ *   - Component patterns (cards, callouts, columns, code)
+ *   - Branding system (logo, persistent content, references)
+ *
+ * Brand themes @import this file and override CSS custom properties only.
+ * Never override structural rules in brand files.
+ * ============================================================================
+ */
+
+@import 'default';
+
+/*
+ * NOTE: Google Fonts @import url() goes in each brand CSS file, not here.
+ * Marp inlines theme CSS into <style> tags where @import url() must appear
+ * before any other rules to work. Each brand loads its own fonts.
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   1. DESIGN TOKENS  (override these in brand CSS files)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ─── Brand identity ────────────────────────────────────────────────── */
+  --brand-name:          'Partnership';
+
+  /* ─── Color palette ─────────────────────────────────────────────────── */
+  --color-primary:       #2563eb;
+  --color-primary-light: #60a5fa;
+  --color-primary-dark:  #1d4ed8;
+  --color-accent:        #f59e0b;
+  --color-accent-light:  #fbbf24;
+  --color-secondary:     #6366f1;
+  --color-secondary-light:#818cf8;
+  --color-secondary-dark:#4f46e5;
+  --text-on-secondary:   #ffffff;
+  --color-success:       #10b981;
+  --color-warning:       #f59e0b;
+  --color-danger:        #ef4444;
+
+  /* ─── Light mode (default) ──────────────────────────────────────────── */
+  --bg:                  #ffffff;
+  --bg-surface:          #f8fafc;
+  --bg-elevated:         #f1f5f9;
+  --bg-code:             #1e293b;
+  --text:                #0f172a;
+  --text-secondary:      #475569;
+  --text-muted:          #94a3b8;
+  --text-on-primary:     #ffffff;
+  --text-on-accent:      #ffffff;
+  --text-on-code:        #e2e8f0;
+  --border:              #e2e8f0;
+
+  /* ─── Typography ────────────────────────────────────────────────────── */
+  --font-heading:        'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-body:           'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-code:           'Fira Code', ui-monospace, monospace;
+  --font-size-base:      28px;
+  --line-height:         1.6;
+  --heading-line-height: 1.2;
+
+  /* ─── Spacing & layout ──────────────────────────────────────────────── */
+  --slide-padding:       64px 80px;
+  --gap:                 24px;
+  --radius:              12px;
+  --radius-sm:           8px;
+
+  /* ─── Color scheme (light or dark — drives syntax highlighting) ────── */
+  --color-scheme:        light;
+
+  /* ─── Logo & branding ──────────────────────────────────────────────── */
+  --logo-url:            '';
+  --logo-light-url:      '';
+  --logo-size:           40px;
+  --logo-width:          145px;
+  /* Logo switching handled by dual images (.logo / .logo-light) in footer */
+
+  /* ─── Animation ─────────────────────────────────────────────────────── */
+  --animation-duration:  0.5s;
+  --animation-easing:    cubic-bezier(0.22, 1, 0.36, 1);
+  --stagger-delay:       0.12s;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2. DARK MODE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * No auto dark mode here — each brand defines its own default palette.
+ * Use `<!-- _class: dark -->` or `<!-- _class: light -->` per slide,
+ * or `class: dark` / `class: light` in frontmatter for the whole deck.
+ * Each brand CSS defines what .dark and .light look like.
+ */
+
+/* Manual dark mode class (base fallback — brands override these) */
+section.dark {
+  --bg:             #0f172a;
+  --bg-surface:     #1e293b;
+  --bg-elevated:    #334155;
+  --text:           #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted:     #64748b;
+  --border:         #334155;
+  --color-scheme:   dark;
+}
+
+/* Manual light mode class — force light on a single slide */
+section.light {
+  --bg:             #ffffff;
+  --bg-surface:     #f8fafc;
+  --bg-elevated:    #f1f5f9;
+  --text:           #0f172a;
+  --text-secondary: #475569;
+  --text-muted:     #94a3b8;
+  --border:         #e2e8f0;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3. BASE SLIDE STYLES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+section {
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
+  color: var(--text);
+  background-color: var(--bg);
+  color-scheme: var(--color-scheme, light);
+  padding: var(--slide-padding);
+  justify-content: flex-start;
+  align-content: start;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Headings ────────────────────────────────────────────────────────── */
+
+section h1,
+section h2,
+section h3,
+section h4,
+section h5,
+section h6 {
+  font-family: var(--font-heading);
+  line-height: var(--heading-line-height);
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin-top: 0;
+}
+
+section h1 {
+  font-size: 2.4em;
+  font-weight: 800;
+  margin-bottom: 0.3em;
+}
+
+section h2 {
+  font-size: 1.8em;
+  font-weight: 700;
+  margin-bottom: 0.4em;
+}
+
+section h3 {
+  font-size: 1.3em;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* ─── Text ────────────────────────────────────────────────────────────── */
+
+section p {
+  margin-bottom: 0.6em;
+  color: var(--text-secondary);
+}
+
+section strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+section em {
+  color: var(--color-primary);
+  font-style: italic;
+}
+
+section a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ─── Lists ───────────────────────────────────────────────────────────── */
+
+section ul,
+section ol {
+  padding-left: 1.4em;
+  color: var(--text-secondary);
+}
+
+section li {
+  margin-bottom: 0.4em;
+}
+
+section li::marker {
+  color: var(--color-primary);
+}
+
+/* ─── Code ────────────────────────────────────────────────────────────── */
+
+section code {
+  font-family: var(--font-code);
+  background: var(--bg-elevated);
+  color: var(--color-primary);
+  padding: 0.15em 0.4em;
+  border-radius: var(--radius-sm);
+  font-size: 0.85em;
+}
+
+section pre {
+  background: var(--bg-code);
+  color: var(--text-on-code);
+  color-scheme: dark;
+  border-radius: var(--radius);
+  padding: 1.2em 1.6em;
+  font-size: 0.7em;
+  line-height: 1.5;
+  overflow-x: auto;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+section pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+/* ─── Syntax highlighting overrides for readability ──────────────────── */
+/* Marp uses GitHub's prettylights with light-dark(). Force dark palette  */
+/* on code blocks regardless of slide color-scheme.                       */
+section pre code .pl-c   { color: #8b949e !important; } /* comments     */
+section pre code .pl-k   { color: #ff7b72 !important; } /* keywords     */
+section pre code .pl-s   { color: #a5d6ff !important; } /* strings      */
+section pre code .pl-en  { color: #d2a8ff !important; } /* func names   */
+section pre code .pl-v   { color: #ffa657 !important; } /* variables    */
+section pre code .pl-c1  { color: #79c0ff !important; } /* constants    */
+section pre code .pl-e   { color: #d2a8ff !important; } /* entities     */
+section pre code .pl-smi { color: #c9d1d9 !important; } /* identifiers  */
+
+/* ─── Blockquotes (callouts) ──────────────────────────────────────────── */
+
+section blockquote {
+  border-left: 4px solid var(--color-primary);
+  background: var(--bg-surface);
+  padding: 1em 1.4em;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin: 1em 0;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* ─── Tables ──────────────────────────────────────────────────────────── */
+
+section table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85em;
+}
+
+section th {
+  background: var(--color-primary);
+  color: var(--text-on-primary);
+  padding: 0.7em 1em;
+  text-align: left;
+  font-weight: 600;
+}
+
+section td {
+  padding: 0.6em 1em;
+  border-bottom: 1px solid var(--border);
+}
+
+section tr:nth-child(even) td {
+  background: var(--bg-surface);
+}
+
+/* ─── Horizontal rules ────────────────────────────────────────────────── */
+
+section hr {
+  border: none;
+  border-top: 2px solid var(--border);
+  margin: 1.5em 0;
+}
+
+/* ─── Images ──────────────────────────────────────────────────────────── */
+
+section img {
+  border-radius: var(--radius);
+  transform: translateZ(0);          /* GPU-composite → smooth antialiasing */
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4. SLIDE LAYOUT VARIANTS  (apply via `<!-- class: variant -->`)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Title slide ──────────────────────────────────────────────────────── */
+section.title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+  color: var(--text-on-primary);
+}
+
+section.title h1 {
+  color: var(--text-on-primary);
+  font-size: 2.8em;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+}
+
+section.title h2 {
+  color: rgba(255,255,255,0.85);
+  font-weight: 400;
+  font-size: 1.3em;
+}
+
+section.title p {
+  color: rgba(255,255,255,0.7);
+}
+
+section.title strong,
+section.title em,
+section.title a {
+  color: var(--text-on-primary);
+}
+
+/* Title slide with large centered logo */
+section.title-logo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+  color: var(--text-on-primary);
+}
+
+section.title-logo::before {
+  content: '';
+  display: block;
+  width: calc(var(--logo-width) * 2.5);
+  height: calc(var(--logo-size) * 2.5);
+  background: var(--logo-light-url) center / contain no-repeat;
+  margin-bottom: 32px;
+}
+
+section.title-logo footer { display: none; }
+
+section.title-logo h1 {
+  color: var(--text-on-primary);
+  font-size: 2.8em;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+}
+
+section.title-logo h2 {
+  color: rgba(255,255,255,0.85);
+  font-weight: 400;
+  font-size: 1.3em;
+}
+
+section.title-logo p {
+  color: rgba(255,255,255,0.7);
+}
+
+section.title-logo strong,
+section.title-logo em,
+section.title-logo a {
+  color: var(--text-on-primary);
+}
+
+/* ── Section divider ──────────────────────────────────────────────────── */
+section.section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  background: var(--bg-surface);
+}
+
+section.section h1 {
+  font-size: 2.6em;
+  color: var(--color-primary);
+}
+
+section.section h2 {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Section divider with large centered logo */
+section.section-logo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: var(--bg-surface);
+}
+
+section.section-logo::before {
+  content: '';
+  display: block;
+  width: calc(var(--logo-width) * 2.5);
+  height: calc(var(--logo-size) * 2.5);
+  background: var(--logo-url) center / contain no-repeat;
+  margin-bottom: 32px;
+}
+
+section.section-logo footer { display: none; }
+
+section.section-logo h1 {
+  font-size: 2.6em;
+  color: var(--color-primary);
+}
+
+section.section-logo h2 {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* ── Centered content ─────────────────────────────────────────────────── */
+section.center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* ── Inverse (primary bg) ─────────────────────────────────────────────── */
+section.inverse {
+  background: var(--color-primary);
+  color: var(--text-on-primary);
+}
+
+section.inverse h1,
+section.inverse h2,
+section.inverse h3 {
+  color: var(--text-on-primary);
+}
+
+section.inverse p,
+section.inverse li {
+  color: rgba(255,255,255,0.85);
+}
+
+section.inverse strong,
+section.inverse em,
+section.inverse a {
+  color: var(--text-on-primary);
+}
+
+section.inverse code {
+  background: rgba(255,255,255,0.15);
+  color: var(--text-on-primary);
+}
+
+/* ── Quote slide ──────────────────────────────────────────────────────── */
+section.quote {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: var(--bg-surface);
+}
+
+section.quote blockquote {
+  border-left: none;
+  background: none;
+  font-size: 1.4em;
+  font-style: italic;
+  color: var(--text);
+  max-width: 80%;
+  padding: 0;
+}
+
+section.quote blockquote::before {
+  content: '\201C';
+  display: block;
+  font-size: 3em;
+  color: var(--color-primary);
+  line-height: 1;
+  margin-bottom: 0.2em;
+}
+
+/* ── End / Thank you slide ────────────────────────────────────────────── */
+section.end {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent, var(--color-primary-dark)));
+  color: var(--text-on-primary);
+}
+
+section.end h1 {
+  color: var(--text-on-primary);
+  font-size: 3em;
+}
+
+section.end p {
+  color: rgba(255,255,255,0.8);
+  font-size: 1.1em;
+}
+
+section.end strong,
+section.end em,
+section.end a {
+  color: var(--text-on-primary);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4b. UNIFIED MULTI-COLUMN LAYOUT SYSTEM
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * 3-layer composable system:
+ *   Layer 1 — Slide class: grid structure (cols-X-Y)
+ *   Layer 2 — Div class: background/boundary (primary, secondary, accent, cover, arc, arc-inv)
+ *   Layer 3 — Content inside divs: any content (text, images, code, etc.)
+ *
+ * 12-column grid: X-Y numbers represent column proportions out of 12.
+ *   cols-6-6 → 1fr 1fr (50/50)
+ *   cols-4-8 → 1fr 2fr (33/67)
+ *   cols-8-4 → 2fr 1fr (67/33)
+ *   cols-3-9 → 1fr 3fr (25/75)
+ *   cols-9-3 → 3fr 1fr (75/25)
+ *   cols-4-4-4 → 1fr 1fr 1fr (equal thirds)
+ *   cols-3-6-3 → 1fr 2fr 1fr (25/50/25)
+ *   cols-2-8-2 → 1fr 4fr 1fr (17/67/17)
+ *
+ * Arc boundary: add `arc` or `arc-inv` to a div for curved left edge.
+ *
+ * Usage:
+ *   <!-- _class: cols-6-6 -->
+ *   <div>Left content</div>
+ *   <div class="cover">![photo](url)</div>
+ *
+ *   <!-- _class: cols-6-6 -->
+ *   <div>Text</div>
+ *   <div class="cover arc">![photo](url)</div>
+ *
+ *   <!-- _class: cols-4-8 -->
+ *   <div class="primary">Colored panel</div>
+ *   <div>Regular content</div>
+ */
+
+/* ── Base grid: shared by all cols-* layouts ──────────────────────────── */
+section[class*="cols-"] {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 0;
+  padding: 0;
+  align-items: stretch;
+}
+
+/* Headings outside divs span full width above columns */
+section[class*="cols-"] > h1,
+section[class*="cols-"] > h2,
+section[class*="cols-"] > h3,
+section[class*="cols-"] > h4,
+section[class*="cols-"] > h5,
+section[class*="cols-"] > h6 {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  padding: 64px 80px 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* ── 2-column grid ratios ─────────────────────────────────────────────── */
+section.cols-6-6  { grid-template-columns: 1fr 1fr; }
+section.cols-4-8  { grid-template-columns: 1fr 2fr; }
+section.cols-8-4  { grid-template-columns: 2fr 1fr; }
+section.cols-3-9  { grid-template-columns: 1fr 3fr; }
+section.cols-9-3  { grid-template-columns: 3fr 1fr; }
+
+/* ── 3-column grid ratios ─────────────────────────────────────────────── */
+section.cols-4-4-4 { grid-template-columns: 1fr 1fr 1fr; }
+section.cols-3-6-3 { grid-template-columns: 1fr 2fr 1fr; }
+section.cols-2-8-2 { grid-template-columns: 1fr 4fr 1fr; }
+
+/* ── Div default: full-height columns with centered content ───────────── */
+section[class*="cols-"] > div {
+  grid-row: 2;
+  padding: 40px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Images inside regular (non-cover) divs get rounded corners ──────── */
+section[class*="cols-"] > div:not(.cover) img {
+  border-radius: var(--radius);
+}
+
+/* ── Div color classes ────────────────────────────────────────────────── */
+section[class*="cols-"] > div.primary {
+  background: var(--color-primary);
+  color: var(--text-on-primary);
+}
+section[class*="cols-"] > div.primary h1,
+section[class*="cols-"] > div.primary h2,
+section[class*="cols-"] > div.primary h3 {
+  color: var(--text-on-primary);
+}
+
+section[class*="cols-"] > div.secondary {
+  background: var(--color-secondary);
+  color: var(--text-on-secondary);
+}
+section[class*="cols-"] > div.secondary h1,
+section[class*="cols-"] > div.secondary h2,
+section[class*="cols-"] > div.secondary h3 {
+  color: var(--text-on-secondary);
+}
+
+section[class*="cols-"] > div.accent {
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+}
+section[class*="cols-"] > div.accent h1,
+section[class*="cols-"] > div.accent h2,
+section[class*="cols-"] > div.accent h3 {
+  color: var(--text-on-accent);
+}
+
+/* ── Text color inheritance in colored divs ──────────────────────────── */
+section[class*="cols-"] > div.primary p,
+section[class*="cols-"] > div.primary li {
+  color: var(--text-on-primary);
+}
+section[class*="cols-"] > div.secondary p,
+section[class*="cols-"] > div.secondary li {
+  color: var(--text-on-secondary);
+}
+section[class*="cols-"] > div.accent p,
+section[class*="cols-"] > div.accent li {
+  color: var(--text-on-accent);
+}
+section[class*="cols-"] > div.dark p,
+section[class*="cols-"] > div.dark li {
+  color: #f1f5f9;
+}
+section[class*="cols-"] > div.light p,
+section[class*="cols-"] > div.light li {
+  color: #1e293b;
+}
+
+/* ── Inline element colors in colored contexts ───────────────────────── */
+/* Without these, <strong> uses var(--text) and <em> uses
+   var(--color-primary), both of which ignore the panel background and
+   can produce unreadable text (e.g. dark bold on a blue panel).       */
+
+/* Column color panels */
+section[class*="cols-"] > div.primary strong,
+section[class*="cols-"] > div.primary em,
+section[class*="cols-"] > div.primary a {
+  color: var(--text-on-primary);
+}
+section[class*="cols-"] > div.secondary strong,
+section[class*="cols-"] > div.secondary em,
+section[class*="cols-"] > div.secondary a {
+  color: var(--text-on-secondary);
+}
+section[class*="cols-"] > div.accent strong,
+section[class*="cols-"] > div.accent em,
+section[class*="cols-"] > div.accent a {
+  color: var(--text-on-accent);
+}
+section[class*="cols-"] > div.dark strong,
+section[class*="cols-"] > div.dark em,
+section[class*="cols-"] > div.dark a {
+  color: #f1f5f9;
+}
+section[class*="cols-"] > div.light strong,
+section[class*="cols-"] > div.light em,
+section[class*="cols-"] > div.light a {
+  color: #1e293b;
+}
+
+section[class*="cols-"] > div.dark {
+  background: #1a1a2e;
+  color: #f1f5f9;
+}
+section[class*="cols-"] > div.dark h1,
+section[class*="cols-"] > div.dark h2,
+section[class*="cols-"] > div.dark h3 {
+  color: #f1f5f9;
+}
+
+section[class*="cols-"] > div.light {
+  background: #f8fafc;
+  color: #1e293b;
+}
+section[class*="cols-"] > div.light h1,
+section[class*="cols-"] > div.light h2,
+section[class*="cols-"] > div.light h3 {
+  color: #1e293b;
+}
+
+/* ── Cover class: full-height edge-to-edge image ─────────────────────── */
+section[class*="cols-"] > div.cover {
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+section[class*="cols-"] > div.cover p {
+  margin: 0;
+  height: 100%;
+}
+
+section[class*="cols-"] > div.cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  display: block;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4c. ARC BOUNDARIES (div-level, seamless overlay technique)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * Arc boundaries are set per-div with `arc` or `arc-inv` classes.
+ * Works in 2-column and 3-column layouts.
+ *
+ * Circular arc: center at 25% from top, 5% clip displacement.
+ *   arc     → bulges RIGHT (standard)
+ *   arc-inv → bulges LEFT (inverse)
+ *
+ * The arc div extends left via negative margin (7% non-cover, 8% cover).
+ * Margins exceed the 5% clip displacement to prevent background bleed —
+ * clip-path % is relative to the element's border box (wider), while
+ * margin % is relative to the grid track (narrower).
+ * The preceding div gets z-index:1 to sit on top, covering the overlap.
+ *
+ * Cover-on-left uses an overlay technique: cover spans full width behind,
+ * text div sits on top with background and arc clip.
+ */
+
+/* ── Z-index: preceding div sits on top of arc overlap ───────────────── */
+section[class*="cols-"] > div:has(+ div.arc),
+section[class*="cols-"] > div:has(+ div.arc-inv) {
+  z-index: 1;
+  position: relative;
+}
+
+/* ── Spacing: arc-inv bulges left into the preceding column ──────────── */
+/*
+ * The arc-inv curve peaks at 0% x (the element's left edge), which can
+ * intrude past the preceding div's default 48px padding. Adding 5%
+ * padding-right creates ~30px breathing room at the arc's peak.
+ * (The 3-column rule for div.arc:has(+ div.arc-inv) has higher
+ *  specificity and overrides this where needed.)
+ */
+section[class*="cols-"] > div:has(+ div.arc-inv) {
+  padding-right: calc(48px + 5%);
+}
+
+/* ── Standard arc on non-cover div ───────────────────────────────────── */
+/*
+ * margin-left: -7% provides ~30px overlap with the preceding column.
+ * The arc clip-path carves ~5% of the element's border box (~24px).
+ * Using 7% instead of 5% ensures the overlap always exceeds the clip,
+ * preventing the slide background from bleeding through at the boundary.
+ * (Margin % is relative to the grid track; clip-path % is relative to
+ *  the element's border box, which is wider due to the negative margins.)
+ */
+section[class*="cols-"] > div.arc:not(.cover) {
+  margin-left: -7%;
+  clip-path: polygon(
+    0% 0%, 100% 0%, 100% 100%, 0% 100%,
+    0.0% 100%,
+    0.6% 95%, 1.2% 90%, 1.8% 85%, 2.3% 80%, 2.8% 75%,
+    3.2% 70%, 3.6% 65%, 3.9% 60%, 4.2% 55%, 4.4% 50%,
+    4.6% 45%, 4.8% 40%, 4.9% 35%, 5.0% 30%, 5.0% 25%,
+    5.0% 20%, 4.9% 15%, 4.8% 10%, 4.6% 5%, 4.4% 0%
+  );
+  padding-left: calc(48px + 7%);
+}
+
+/* ── Standard arc on cover div (image fills edge-to-edge) ────────────── */
+section[class*="cols-"] > div.cover.arc {
+  margin-left: -8%;
+  clip-path: polygon(
+    0% 0%, 100% 0%, 100% 100%, 0% 100%,
+    0.0% 100%,
+    0.8% 95%, 1.5% 90%, 2.2% 85%, 2.8% 80%, 3.3% 75%,
+    3.8% 70%, 4.3% 65%, 4.7% 60%, 5.0% 55%, 5.3% 50%,
+    5.6% 45%, 5.8% 40%, 5.9% 35%, 6.0% 30%, 6.0% 25%,
+    6.0% 20%, 5.9% 15%, 5.8% 10%, 5.6% 5%, 5.3% 0%
+  );
+}
+
+/* ── 3-column fix: arc preceding arc-inv must extend right to fill gap ─ */
+section[class*="cols-"] > div.arc:not(.cover):has(+ div.arc-inv) {
+  margin-right: -7%;
+  padding-right: calc(48px + 7%);
+}
+section[class*="cols-"] > div.cover.arc:has(+ div.arc-inv) {
+  margin-right: -8%;
+}
+
+/* ── Inverse arc on non-cover div ────────────────────────────────────── */
+section[class*="cols-"] > div.arc-inv:not(.cover) {
+  margin-left: -7%;
+  clip-path: polygon(
+    5.0% 0%, 100% 0%, 100% 100%, 5.0% 100%,
+    5.0% 100%,
+    4.4% 95%, 3.8% 90%, 3.2% 85%, 2.7% 80%, 2.2% 75%,
+    1.8% 70%, 1.4% 65%, 1.1% 60%, 0.8% 55%, 0.6% 50%,
+    0.4% 45%, 0.2% 40%, 0.1% 35%, 0.0% 30%, 0.0% 25%,
+    0.0% 20%, 0.1% 15%, 0.2% 10%, 0.4% 5%, 0.6% 0%
+  );
+  padding-left: calc(48px + 7%);
+  z-index: 1;
+  position: relative;
+}
+
+/* ── Inverse arc on cover div ────────────────────────────────────────── */
+section[class*="cols-"] > div.cover.arc-inv {
+  margin-left: -8%;
+  clip-path: polygon(
+    6.0% 0%, 100% 0%, 100% 100%, 6.0% 100%,
+    6.0% 100%,
+    5.2% 95%, 4.5% 90%, 3.8% 85%, 3.2% 80%, 2.7% 75%,
+    2.2% 70%, 1.7% 65%, 1.3% 60%, 1.0% 55%, 0.7% 50%,
+    0.4% 45%, 0.2% 40%, 0.1% 35%, 0.0% 30%, 0.0% 25%,
+    0.0% 20%, 0.1% 15%, 0.2% 10%, 0.4% 5%, 0.7% 0%
+  );
+}
+
+/* ── Cover on the LEFT + arc/arc-inv text div on the RIGHT (overlay) ── */
+/* Cover spans full slide behind; text div sits on top with bg + arc.    */
+section[class*="cols-"]:has(> div:first-of-type.cover):has(> div.arc:not(:first-of-type):not(.cover)),
+section[class*="cols-"]:has(> div:first-of-type.cover):has(> div.arc-inv:not(:first-of-type):not(.cover)) {
+  position: relative;
+}
+
+section[class*="cols-"]:has(> div:first-of-type.cover):has(> div.arc:not(:first-of-type):not(.cover)) > div:first-of-type.cover,
+section[class*="cols-"]:has(> div:first-of-type.cover):has(> div.arc-inv:not(:first-of-type):not(.cover)) > div:first-of-type.cover {
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+  z-index: 0;
+  margin: 0;
+}
+
+section[class*="cols-"]:has(> div:first-of-type.cover) > div.arc:not(:first-of-type):not(.cover) {
+  grid-row: 1 / -1;
+  grid-column: 2;
+  z-index: 2;
+  position: relative;
+  background: var(--bg);
+}
+
+section[class*="cols-"]:has(> div:first-of-type.cover) > div.arc-inv:not(:first-of-type):not(.cover) {
+  grid-row: 1 / -1;
+  grid-column: 2;
+  z-index: 2;
+  position: relative;
+  background: var(--bg);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4d. SPECIAL IMAGE LAYOUTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * These standalone layouts don't fit the column model.
+ * They remain as dedicated classes.
+ */
+
+/* ── Shared: heading spans full width in image layouts ────────────────── */
+section[class*="img-"] > h1,
+section[class*="img-"] > h2 {
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+}
+/* ── Full-slide image with text overlay ──────────────────────────────── */
+/*
+ * Use Marp's backgroundImage directive for the image:
+ *   <!-- _backgroundImage: url(https://...) -->
+ *   <!-- _class: img-overlay -->
+ *
+ * Or use an <img> tag — the first <p> child (containing the img) is
+ * made the full-bleed background; all subsequent children overlay it.
+ */
+section.img-overlay {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+section.img-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
+  z-index: 1;
+}
+
+/* The first <p> child (wrapping <img>) becomes the full-bleed background */
+section.img-overlay > p:first-of-type {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  z-index: 0;
+}
+
+section.img-overlay > p:first-of-type img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+/* All content overlays on top (except the bg image, header, footer) */
+section.img-overlay > *:not(header):not(footer):not(p:first-of-type) {
+  position: relative;
+  z-index: 2;
+}
+
+/* Ensure header/footer logo stays visible above the gradient */
+section.img-overlay > header,
+section.img-overlay > footer {
+  z-index: 3;
+}
+
+section.img-overlay h1,
+section.img-overlay h2,
+section.img-overlay h3 {
+  color: #ffffff;
+  text-shadow: 0 2px 24px rgba(0,0,0,0.6), 0 1px 4px rgba(0,0,0,0.4);
+}
+
+section.img-overlay p {
+  color: rgba(255,255,255,0.85);
+  text-shadow: 0 1px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Badges and inline code should never have text-shadow */
+section .badge,
+section.img-overlay .badge,
+section.img-overlay code {
+  text-shadow: none !important;
+}
+
+/* ── Centered image with caption ─────────────────────────────────────── */
+section.img-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.6em;
+}
+
+/* The <p> containing the image */
+section.img-caption > p:has(img) {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  min-height: 0;
+}
+
+section.img-caption > p img {
+  max-height: 380px;
+  max-width: 90%;
+  width: auto;
+  object-fit: contain;
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+/* Logo in footer must never inherit content image styling */
+section.img-caption footer img {
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
+}
+
+/* Caption text below the image */
+section.img-caption > p:not(:has(img)) {
+  font-size: 0.8em;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+/* ── Image grid (2x2) ────────────────────────────────────────────────── */
+section.img-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr 1fr;
+  gap: 12px;
+  padding: 48px 48px 80px;         /* extra bottom to clear footer/logo */
+}
+
+section.img-grid h1,
+section.img-grid h2 {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+section.img-grid > div {
+  overflow: hidden;
+  min-height: 0;              /* allow grid children to shrink */
+  border-radius: var(--radius);
+}
+
+section.img-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;           /* div handles the rounding via overflow */
+}
+
+/* ── Banner (heading, image strip, content below) ───────────────────── */
+section.img-banner {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 40% 1fr;
+  padding: 0;
+  padding-bottom: 80px;            /* clear footer / page number */
+  gap: 0;
+}
+
+section.img-banner h1,
+section.img-banner h2 {
+  padding: 32px 48px 16px;
+  margin: 0;
+}
+
+section.img-banner > div {
+  overflow: hidden;
+}
+
+section.img-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+section.img-banner > div:last-of-type {
+  padding: 24px 48px;
+}
+
+
+/* (Old split-* layouts removed — replaced by unified cols-* + div color classes in 4b) */
+
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5. COMPONENT PATTERNS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Card ─────────────────────────────────────────────────────────────── */
+section .card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.4em;
+}
+
+section .card h3 {
+  margin-top: 0;
+}
+
+/* ── Badge / pill ─────────────────────────────────────────────────────── */
+section .badge {
+  display: inline-block;
+  background: var(--color-primary);
+  color: var(--text-on-primary);
+  padding: 0.2em 0.7em;
+  border-radius: 999px;
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+section .badge.accent {
+  background: var(--color-accent);
+}
+
+section .badge.success {
+  background: var(--color-success);
+}
+
+/* ── Footer (logo placement, bottom-left) ────────────────────────────── */
+/*
+ * The logo is placed in the footer (via frontmatter) so it appears
+ * bottom-left on every slide. Per-slide <footer class="ref"> can
+ * still be used for source attributions.
+ *
+ * Usage in frontmatter:
+ *   footer: '<img src="./assets/logo.svg" class="logo">'
+ */
+section footer {
+  position: absolute;
+  bottom: 20px;
+  left: 24px;
+  right: auto;
+  width: auto;
+  font-size: 1em;
+  color: var(--text-muted);
+}
+
+section footer img.logo,
+section footer img.logo-light {
+  height: var(--logo-size);
+  width: auto;
+  object-fit: contain;
+  border-radius: 0;
+}
+
+/* By default: show dark logo, hide light logo */
+section footer img.logo       { display: inline; }
+section footer img.logo-light { display: none; }
+
+/* ── Reference / attribution bar ─────────────────────────────────────── */
+/*
+ * Usage:  <footer class="ref">Source: Company Report 2024</footer>
+ * Or:     <footer class="ref">Photo by Author · Unsplash</footer>
+ */
+section footer.ref {
+  left: calc(24px + var(--logo-width) + 16px);
+  right: 80px;
+  bottom: 20px;
+  width: auto;
+  font-size: 0.5em;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  font-style: italic;
+}
+
+section footer.ref a {
+  color: var(--text-muted);
+  text-decoration: underline;
+}
+
+/* ── Slide number ─────────────────────────────────────────────────────── */
+section::after {
+  font-size: 0.55em;
+  color: var(--text-muted);
+  padding: 12px 24px;
+}
+
+/* ── Automatic logo light/dark switching ─────────────────────────────── */
+/*
+ * Two logo images in the footer: .logo (dark) and .logo-light (light).
+ * CSS toggles visibility based on slide background.
+ *
+ * Usage in frontmatter:
+ *   footer: '<img src="./assets/{brand}-logo.svg" class="logo"><img src="./assets/{brand}-logo-light.svg" class="logo-light">'
+ *
+ * Automatic rules:
+ *   Light backgrounds → dark logo shown
+ *   Dark backgrounds (.dark, .title, .end, .inverse) → light logo shown
+ *
+ * Manual overrides (combine with any layout class):
+ *   .force-logo-light → always show light logo
+ *   .force-logo-dark  → always show dark logo
+ */
+
+/* Dark-background slides: show light logo, hide dark logo */
+section.title footer img.logo,
+section.title-logo footer img.logo,
+section.end footer img.logo,
+section.inverse footer img.logo,
+section.dark footer img.logo {
+  display: none;
+}
+
+section.title footer img.logo-light,
+section.title-logo footer img.logo-light,
+section.end footer img.logo-light,
+section.inverse footer img.logo-light,
+section.dark footer img.logo-light {
+  display: inline;
+}
+
+/* Light slides: explicitly show dark logo (overrides dark-default brands) */
+section.light footer img.logo       { display: inline; }
+section.light footer img.logo-light { display: none; }
+
+/* Manual override classes */
+section.force-logo-light footer img.logo       { display: none; }
+section.force-logo-light footer img.logo-light { display: inline; }
+section.force-logo-dark footer img.logo        { display: inline; }
+section.force-logo-dark footer img.logo-light  { display: none; }
+
+/* ── Persistent content slot (QR code, social link, etc.) ────────────── */
+/*
+ * Usage: Put an element with class="persistent" in the slide:
+ *   <div class="persistent"><img src="qr.png" class="qr"></div>
+ *
+ * Or use a footer variant:
+ *   <footer class="persistent">🔗 follow.link/slides</footer>
+ *
+ * For a QR code on every slide, set it in the footer frontmatter:
+ *   footer: '<img src="./assets/qr.png" class="qr">'
+ */
+section .qr {
+  height: 80px;
+  width: 80px;
+  border-radius: 4px;
+}
+
+section .persistent {
+  position: absolute;
+  bottom: 20px;
+  right: 24px;
+  z-index: 1;
+  font-size: 0.55em;
+  color: var(--text-muted);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   6. ELEMENT ANIMATIONS  (apply via HTML classes in Markdown)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * Usage in Markdown:
+ *   <div class="fade-in">Content appears with fade</div>
+ *   <div class="slide-up" style="--i:1">First item</div>
+ *   <div class="slide-up" style="--i:2">Second item (staggered)</div>
+ */
+
+/* ── Fade in ──────────────────────────────────────────────────────────── */
+.fade-in {
+  animation: fadeIn var(--animation-duration) var(--animation-easing) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger-delay));
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Slide up ─────────────────────────────────────────────────────────── */
+.slide-up {
+  animation: slideUp var(--animation-duration) var(--animation-easing) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger-delay));
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Slide in from left ───────────────────────────────────────────────── */
+.slide-left {
+  animation: slideLeft var(--animation-duration) var(--animation-easing) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger-delay));
+}
+
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Slide in from right ──────────────────────────────────────────────── */
+.slide-right {
+  animation: slideRight var(--animation-duration) var(--animation-easing) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger-delay));
+}
+
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Scale up (pop) ───────────────────────────────────────────────────── */
+.scale-up {
+  animation: scaleUp var(--animation-duration) var(--animation-easing) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger-delay));
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Blur in ──────────────────────────────────────────────────────────── */
+.blur-in {
+  animation: blurIn var(--animation-duration) var(--animation-easing) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger-delay));
+}
+
+@keyframes blurIn {
+  from { opacity: 0; filter: blur(12px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+
+/* ── Typewriter (for headings) ────────────────────────────────────────── */
+.typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid var(--color-primary);
+  animation:
+    typing 2s steps(30) 0.5s both,
+    blink 0.75s step-end infinite;
+  width: 0;
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+@keyframes blink {
+  50% { border-color: transparent; }
+}
+
+/* ── Pulse (for emphasis) ─────────────────────────────────────────────── */
+.pulse {
+  animation: pulse 2s var(--animation-easing) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.03); }
+}
+
+/* ── Float (subtle hover) ─────────────────────────────────────────────── */
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   6b. VIEW TRANSITION MORPHING  (element transitions between slides)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * Marp uses the View Transition API for element morphing between slides
+ * (similar to PowerPoint Morph / Keynote Magic Move).
+ *
+ * Two ways to morph an element:
+ *
+ *   1. data-morph attribute (preferred):
+ *      <span data-morph="circle1">①</span>
+ *
+ *   2. CSS class (alternative):
+ *      <span class="morph-1">①</span>
+ *
+ * Give the SAME morph name on two consecutive slides. Use any transition
+ * directive (e.g. `<!-- _transition: fade -->`) on the second slide.
+ * The View Transition API morphs matching elements automatically.
+ *
+ * Each morph name must be UNIQUE per slide. Requires `--html` flag.
+ *
+ * NOTE: All selectors MUST start with `section` so Marp's CSS scoping
+ * keeps them in the final output. Bare class selectors get stripped.
+ */
+
+/* ── data-morph attribute selectors ──────────────────────────────────── */
+[data-morph] {
+  view-transition-name: attr(data-morph type(<custom-ident>), none);
+}
+
+/* ── Number circle component (for morph demos and step indicators) ──── */
+section .num-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--text-on-primary);
+  font-weight: 700;
+  font-size: 1em;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+section .num-circle.accent {
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   7. UTILITY CLASSES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.text-primary   { color: var(--color-primary) !important; }
+.text-accent    { color: var(--color-accent) !important; }
+.text-muted     { color: var(--text-muted) !important; }
+.text-success   { color: var(--color-success) !important; }
+.text-warning   { color: var(--color-warning) !important; }
+.text-danger    { color: var(--color-danger) !important; }
+.text-center    { text-align: center !important; }
+.text-small     { font-size: 0.75em !important; }
+.text-large     { font-size: 1.3em !important; }
+.text-xl        { font-size: 1.6em !important; }
+
+.bg-surface     { background: var(--bg-surface) !important; }
+.bg-elevated    { background: var(--bg-elevated) !important; }
+.bg-primary     { background: var(--color-primary) !important; color: var(--text-on-primary) !important; }
+.bg-secondary   { background: var(--color-secondary) !important; color: var(--text-on-secondary) !important; }
+.bg-accent      { background: var(--color-accent) !important; color: var(--text-on-accent) !important; }
+
+.mt-0           { margin-top: 0 !important; }
+.mt-1           { margin-top: 0.5em !important; }
+.mt-2           { margin-top: 1em !important; }
+.mb-0           { margin-bottom: 0 !important; }
+.mb-1           { margin-bottom: 0.5em !important; }
+.mb-2           { margin-bottom: 1em !important; }
+
+.rounded        { border-radius: var(--radius) !important; }
+.shadow         { box-shadow: 0 4px 24px rgba(0,0,0,0.1) !important; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   8. PRINT / EXPORT OVERRIDES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media print {
+  section {
+    color-scheme: light !important;
+  }
+
+  section.title,
+  section.title-logo {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  section.end {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Remove text-shadow artifacts on gradient slides */
+  section.title h1,
+  section.title-logo h1,
+  section.img-overlay h1,
+  section.img-overlay h2,
+  section.img-overlay h3,
+  section.img-overlay p {
+    text-shadow: none !important;
+  }
+
+  .fade-in, .slide-up, .slide-left, .slide-right, .scale-up, .blur-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   9. ACCESSIBILITY: REDUCED MOTION
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   10. SLIDE TRANSITION SPEED OVERRIDE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * Marp's View Transition API reads --marp-bespoke-transition-animation-duration
+ * from the document root, but theme CSS is scoped to <section> by Marp's
+ * transformer. The variable set in :root above won't reach ::view-transition-group.
+ *
+ * Workaround: add a <style> tag in the first slide of presentation.md:
+ *   <style>:root{--marp-bespoke-transition-animation-duration:0.15s}</style>
+ *
+ * This tag renders inside the slide HTML but targets :root, so the browser
+ * applies it at the document level where ::view-transition-group can read it.
+ */

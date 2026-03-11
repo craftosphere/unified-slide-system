@@ -1,0 +1,84 @@
+/* @theme brix */
+/* ═══════════════════════════════════════════════════════════════════════════
+   BriX Consulting — "The Forge of Unicorns"
+   Dark-first theme · Teal accent · Poppins + Lato
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@import 'base';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&family=Fira+Code:wght@400;500;600&display=swap');
+
+:root {
+  --brand-name:          'BriX Consulting';
+  --logo-url:            url('./assets/brix-logo.svg');
+  --logo-light-url:      url('./assets/brix-logo-light.svg');
+  --logo-width:          81px;
+
+  /* ─── Palette ───────────────────────────────────────────────────────── */
+  --color-primary:       #077a7a;
+  --color-primary-light: #0aa8a7;
+  --color-primary-dark:  #046665;
+  --color-accent:        #d4a853;
+  --color-accent-light:  #e0be78;
+  --color-secondary:     #5b6abf;
+  --color-secondary-light:#7b88d4;
+  --color-secondary-dark:#3f4d9e;
+  --text-on-secondary:   #ffffff;
+  --text-on-accent:      #101418;
+
+  /* ─── Color scheme ──────────────────────────────────────────────────── */
+  --color-scheme:        dark;
+
+  /* ─── Dark mode as default ──────────────────────────────────────────── */
+  --bg:                  #101418;
+  --bg-surface:          #1b2229;
+  --bg-elevated:         #1e262c;
+  --bg-code:             #0d1117;
+  --text:                #e5e5e5;
+  --text-secondary:      #cbcbcb;
+  --text-muted:          rgba(255,255,255,0.5);
+  --text-on-primary:     #ffffff;
+  --text-on-code:        #e2e8f0;
+  --border:              rgba(255,255,255,0.1);
+
+  /* ─── Typography ────────────────────────────────────────────────────── */
+  --font-heading:        'Poppins', sans-serif;
+  --font-body:           'Lato', sans-serif;
+}
+
+/* ─── Dark-default: show light logo by default ───────────────────────── */
+section footer img.logo       { display: none; }
+section footer img.logo-light { display: inline; }
+
+/* ─── BriX light mode override ────────────────────────────────────────── */
+section.light {
+  --bg:             #f0f4f5;
+  --bg-surface:     #ffffff;
+  --bg-elevated:    #e8eef0;
+  --text:           #101418;
+  --text-secondary: #3a4a54;
+  --text-muted:     #7a8a94;
+  --border:         #d0dce0;
+  --color-scheme:   light;
+}
+
+/* Light mode: show dark logo (base default handles this) */
+
+/* ─── Title slide: gradient with BriX gold + teal ─────────────────────── */
+section.title {
+  background: linear-gradient(135deg, #046665 0%, #077a7a 40%, #1b2229 100%);
+}
+
+section.end {
+  background: linear-gradient(135deg, #046665, #077a7a);
+  color: #ffffff;
+}
+
+section.end h1,
+section.end h2 {
+  color: #ffffff;
+}
+
+/* ─── BriX accent on inverse ──────────────────────────────────────────── */
+section.inverse {
+  background: var(--color-primary-dark);
+}

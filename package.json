@@ -1,0 +1,15 @@
+{
+  "name": "unified-slide-system",
+  "version": "1.0.0",
+  "description": "Multi-brand Marp slide theme with composable column layouts and arc boundaries",
+  "scripts": {
+    "build": "bash scripts/build.sh",
+    "build:html": "SKIP_PDF=1 bash scripts/build.sh",
+    "setup": "npx playwright install chromium",
+    "clean": "rm -rf ./build/ ./.staging/"
+  },
+  "devDependencies": {
+    "@marp-team/marp-cli": "^4.1.0",
+    "playwright": "^1.52.0"
+  }
+}

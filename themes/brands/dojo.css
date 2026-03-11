@@ -1,0 +1,105 @@
+/* @theme dojo */
+/* ═══════════════════════════════════════════════════════════════════════
+   SW Craftsmanship Dojo — "Forging Excellence"
+   Dark charcoal + white sections · Orange accent · Josefin Sans
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@import 'base';
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap');
+
+:root {
+  --brand-name:          'SW Craftsmanship Dojo';
+  --logo-url:            url('./assets/dojo-logo.svg');
+  --logo-light-url:      url('./assets/dojo-logo-light.svg');
+  --logo-width:          277px;
+
+  /* ─── Palette ───────────────────────────────────────────────────────── */
+  --color-primary:       #f9a743;
+  --color-primary-light: #fbbf6a;
+  --color-primary-dark:  #e08c22;
+  --color-accent:        #0068d6;
+  --color-accent-light:  #40a0ff;
+  --color-secondary:     #ef4444;
+  --color-secondary-light:#f87171;
+  --color-secondary-dark:#dc2626;
+  --text-on-secondary:   #ffffff;
+  --text-on-accent:      #ffffff;
+
+  /* ─── Color scheme ──────────────────────────────────────────────────── */
+  --color-scheme:        dark;
+
+  /* ─── Dark charcoal (default) ───────────────────────────────────────── */
+  --bg:                  #222222;
+  --bg-surface:          #2c2c2c;
+  --bg-elevated:         #383838;
+  --bg-code:             #1a1a1a;
+  --text:                #f4f4f4;
+  --text-secondary:      #cccccc;
+  --text-muted:          #888888;
+  --text-on-primary:     #222222;
+  --text-on-code:        #e2e8f0;
+  --border:              rgba(249,167,67,0.2);
+
+  /* ─── Typography ────────────────────────────────────────────────────── */
+  --font-heading:        'Josefin Sans', sans-serif;
+  --font-body:           'Josefin Sans', sans-serif;
+}
+
+/* ─── Dark-default: show light logo by default ───────────────────────── */
+section footer img.logo       { display: none; }
+section footer img.logo-light { display: inline; }
+
+/* ─── Dojo light mode ─────────────────────────────────────────────────── */
+section.light {
+  --bg:             #ffffff;
+  --bg-surface:     #f4f4f4;
+  --bg-elevated:    #e8e8e8;
+  --text:           #222222;
+  --text-secondary: #444444;
+  --text-muted:     #636363;
+  --text-on-primary: #222222;
+  --border:         #dddddd;
+  --color-scheme:   light;
+}
+
+/* Orange heading on light bg fails WCAG — use darker shade */
+section.light.section h1,
+section.light.section-logo h1 {
+  color: #9a5e0d;
+}
+
+/* ─── Title slide: charcoal to orange gradient ────────────────────────── */
+section.title {
+  background: linear-gradient(135deg, #222222 0%, #2c2c2c 50%, #e08c22 100%);
+  color: #ffffff;
+}
+
+section.title h1 {
+  color: #f9a743;
+  text-shadow: 0 2px 20px rgba(249,167,67,0.3);
+}
+
+section.title h2 {
+  color: rgba(255,255,255,0.85);
+}
+
+section.end {
+  background: linear-gradient(135deg, #e08c22, #f9a743);
+  color: #222222;
+}
+
+section.end h1 {
+  color: #222222;
+}
+
+/* ─── Inverse: orange background ──────────────────────────────────────── */
+section.inverse {
+  background: var(--color-primary);
+  color: #222222;
+}
+
+section.inverse h1,
+section.inverse h2,
+section.inverse h3 {
+  color: #222222;
+}

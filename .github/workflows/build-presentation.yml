@@ -1,0 +1,137 @@
+name: Build Presentation
+
+on:
+  workflow_call:
+    inputs:
+      theme-ref:
+        description: "Git ref (tag, branch, SHA) of the theme repo to check out into theme/"
+        required: false
+        type: string
+        default: ""
+      brands:
+        description: "JSON array of brands to build (default: all)"
+        required: false
+        type: string
+        default: '["brix", "craftosphere", "dojo"]'
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout presentation repo with theme submodule
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: theme/package-lock.json
+
+      - name: Install dependencies
+        if: hashFiles('package-lock.json') != ''
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Markdown lint
+        run: npm run --if-present lint:md
+
+      - name: Spell check
+        run: npm run --if-present lint:spell
+
+  build:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        brand: ${{ fromJson(inputs.brands) }}
+
+    steps:
+      - name: Checkout presentation repo with theme submodule
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Pin theme version
+        if: inputs.theme-ref != ''
+        working-directory: theme
+        run: |
+          git fetch origin "${{ inputs.theme-ref }}"
+          git checkout FETCH_HEAD
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: theme/package-lock.json
+
+      - name: Install theme dependencies
+        working-directory: theme
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Chromium for PDF export
+        working-directory: theme
+        run: npx playwright install --with-deps chromium
+
+      - name: Build ${{ matrix.brand }}
+        env:
+          BRAND: ${{ matrix.brand }}
+        run: bash theme/scripts/build.sh
+
+      - name: Verify build output
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          BRAND="${{ matrix.brand }}"
+
+          for ext in html pdf; do
+            file="build/${BRAND}/${REPO_NAME}.${ext}"
+            if [[ -f "$file" ]]; then
+              echo "✓ $file ($(du -h "$file" | cut -f1))"
+            else
+              echo "✗ $file — missing!"
+              exit 1
+            fi
+          done
+
+      - name: Package ${{ matrix.brand }} artifact
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          BRAND="${{ matrix.brand }}"
+          (
+            cd "build/${BRAND}"
+            zip -r "../../${REPO_NAME}-${BRAND}.zip" .
+          )
+
+      - name: Upload ${{ matrix.brand }} artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.brand }}
+          path: "*.zip"
+          retention-days: 30
+          if-no-files-found: error
+
+  release:
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all brand artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" artifacts/**/*.zip --generate-notes
