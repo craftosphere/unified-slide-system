@@ -22,6 +22,20 @@
 @import 'default';
 
 /*
+ * ─── Registered slide sizes (Marp Core `size:` directive) ──────────────────
+ * `@size <name> <width> <height>` registers a named slide size, selectable
+ * per deck via the `size:` frontmatter directive. `size` is an array-type
+ * meta, so these declarations propagate to every brand through `@import
+ * 'base'` — ThemeSet#getThemeMeta resolves imports and merges array metas.
+ * Named (no colon) so the directive value is valid unquoted YAML.
+ *
+ *   size: presentation        → 1280×720  (16:9, default landscape deck)
+ *   size: linkedin-carousel   → 1080×1350 (4:5 portrait document carousel)
+ */
+/* @size presentation 1280px 720px */
+/* @size linkedin-carousel 1080px 1350px */
+
+/*
  * NOTE: Google Fonts @import url() goes in each brand CSS file, not here.
  * Marp inlines theme CSS into <style> tags where @import url() must appear
  * before any other rules to work. Each brand loads its own fonts.
@@ -1089,6 +1103,164 @@ section.img-banner > div:last-of-type {
 
 
 /* (Old split-* layouts removed — replaced by unified cols-* + div color classes in 4b) */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4e. LINKEDIN CAROUSEL LAYOUT  (portrait document carousel)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * Brand-agnostic portrait carousel. The LAYOUT (this class) and the BRAND
+ * (theme) are selected independently — compose them in frontmatter:
+ *
+ *   ---
+ *   theme: craftosphere          # brand → colors + fonts
+ *   size: linkedin-carousel      # registered 1080×1350 portrait size
+ *   class: carousel              # this layout → geometry + chrome
+ *   paginate: true               # drives the `n / total` counter
+ *   ---
+ *
+ * Per-slide cover (centered title + subtitle):
+ *   <!-- _class: carousel cover -->
+ *
+ * Colors and fonts come ENTIRELY from the active brand. Craftosphere
+ * defaults to a light canvas; for a dark canvas (as in editorial carousels)
+ * add `dark` to the class list:  `class: carousel dark`.
+ *
+ * Highlight pill — wrap the single most important phrase per slide in
+ * <mark>…</mark> (works inside a heading or body). Uses the brand accent.
+ *
+ * Corner icon — drop one optional line-art doodle in a top corner:
+ *   <div class="doodle">…inline SVG / <img>…</div>
+ * Inline SVGs should use stroke="currentColor" / fill="currentColor" to
+ * inherit the accent color. Bring your own from any icon library or a
+ * custom SVG; no icon set ships with the theme.
+ *
+ * Closing prompt — a centered italic call-to-action line:
+ *   <p class="ask">What would you put on slide one?</p>
+ */
+
+section.carousel {
+  padding: 120px 104px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
+  font-size: 38px;
+  line-height: 1.45;
+  position: relative;
+  overflow: hidden;
+}
+
+section.carousel h1,
+section.carousel h2 {
+  font-size: 2em;
+  font-weight: 800;
+  line-height: 1.12;
+  margin: 0 0 0.5em;
+  color: var(--text);
+  max-width: none;
+}
+
+section.carousel p {
+  font-size: 1em;
+  line-height: 1.45;
+  color: var(--text);
+  margin: 0 0 0.4em;
+  max-width: 20em;
+}
+
+/* ── Highlight pill ───────────────────────────────────────────────────── */
+section.carousel mark {
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+  padding: 0.04em 0.32em;
+  border-radius: 0.18em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* ── Closing call-to-action line ──────────────────────────────────────── */
+section.carousel p.ask {
+  font-style: italic;
+  text-align: center;
+  width: 100%;
+  max-width: none;
+  color: var(--text);
+  margin-top: 1.2em;
+}
+
+/* ── Cover slide (centered title + subtitle) ──────────────────────────── */
+section.carousel.cover {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+section.carousel.cover h1 {
+  font-size: 2.6em;
+  max-width: 9em;
+}
+
+section.carousel.cover h2,
+section.carousel.cover p {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 1.05em;
+  max-width: 16em;
+}
+
+/* ── Page counter `n / total` (overrides base ::after) ────────────────── */
+/* The pagination plugin keeps this rule because the content includes
+   attr(data-marpit-pagination); the rest is interpolated freely.          */
+section.carousel::after {
+  content: attr(data-marpit-pagination) ' / ' attr(data-marpit-pagination-total);
+  position: absolute;
+  bottom: 64px;
+  left: 104px;
+  right: auto;
+  padding: 0;
+  font-size: 0.6em;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* ── Brand wordmark moves to bottom-right (counter owns bottom-left) ───── */
+section.carousel footer {
+  left: auto;
+  right: 104px;
+  bottom: 60px;
+}
+
+/* ── Top-corner doodle slot ───────────────────────────────────────────── */
+section.carousel .doodle {
+  position: absolute;
+  top: 96px;
+  right: 104px;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent);
+  z-index: 2;
+}
+
+section.carousel .doodle svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  fill: none;
+}
+
+section.carousel .doodle img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 0;
+}
 
 
 
