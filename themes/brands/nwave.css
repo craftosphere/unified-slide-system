@@ -12,7 +12,8 @@
   --brand-name:          'nWave';
   --logo-url:            url('./assets/nwave-logo.svg');
   --logo-light-url:      url('./assets/nwave-logo-light.svg');
-  --logo-width:          150px;
+  --logo-width:          112px;
+  --logo-size:           30px;
 
   /* ─── Palette ───────────────────────────────────────────────────────── */
   --color-primary:       #fac30f;  /* brand gold */
@@ -97,4 +98,19 @@ section.inverse h1,
 section.inverse h2,
 section.inverse h3 {
   color: #0a0a0a;
+}
+
+/* On the gold inverse panel the wordmark's yellow "n" vanishes. Swap to the
+   kit's dark-card badge (dark bg / yellow n / white wave), which reads on gold. */
+section.inverse footer img.logo,
+section.inverse footer img.logo-light {
+  display: none;
+}
+
+section.inverse footer::before {
+  content: '';
+  display: inline-block;
+  height: var(--logo-size);
+  width: calc(var(--logo-size) * 1.6);
+  background: url('./assets/nwave-logo-badge.svg') left center / contain no-repeat;
 }
