@@ -1,11 +1,12 @@
 /* @theme dojo */
 /* ═══════════════════════════════════════════════════════════════════════
    SW Craftsmanship Dojo — "Forging Excellence"
-   Dark charcoal + white sections · Orange accent · Josefin Sans
+   Dark-first "forge" · Flame orange + amber on blue-charcoal
+   Space Grotesk display + Inter body. Matches swcraftsmanshipdojo.com.
    ═══════════════════════════════════════════════════════════════════════ */
 
 @import 'base';
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap');
 
 :root {
   --brand-name:          'SW Craftsmanship Dojo';
@@ -13,93 +14,90 @@
   --logo-light-url:      url('./assets/dojo-logo-light.svg');
   --logo-width:          277px;
 
-  /* ─── Palette ───────────────────────────────────────────────────────── */
-  --color-primary:       #f9a743;
-  --color-primary-light: #fbbf6a;
-  --color-primary-dark:  #e08c22;
-  --color-accent:        #0068d6;
-  --color-accent-light:  #40a0ff;
-  --color-secondary:     #ef4444;
-  --color-secondary-light:#f87171;
-  --color-secondary-dark:#dc2626;
+  /* ─── Palette (forge: flame → amber → ember) ────────────────────────── */
+  --color-primary:       #e1843b;  /* flame  hsl(28 75% 55%) */
+  --color-primary-light: #ec9a5b;  /* glow   hsl(25 75% 60%) */
+  --color-primary-dark:  #c96a24;
+  --color-accent:        #df9a20;  /* forge  hsl(35 75% 50%) */
+  --color-accent-light:  #f0b54a;
+  --color-secondary:     #c94f1d;  /* ember  hsl(15 75% 45%) */
+  --color-secondary-light:#e0703a;
+  --color-secondary-dark:#a53f15;
   --text-on-secondary:   #ffffff;
-  --text-on-accent:      #ffffff;
+  --text-on-primary:     #0c0e12;
+  --text-on-accent:      #0c0e12;
 
   /* ─── Color scheme ──────────────────────────────────────────────────── */
   --color-scheme:        dark;
 
-  /* ─── Dark charcoal (default) ───────────────────────────────────────── */
-  --bg:                  #222222;
-  --bg-surface:          #2c2c2c;
-  --bg-elevated:         #383838;
-  --bg-code:             #1a1a1a;
-  --text:                #f4f4f4;
-  --text-secondary:      #cccccc;
-  --text-muted:          #888888;
-  --text-on-primary:     #222222;
+  /* ─── Dark blue-charcoal (default) ──────────────────────────────────── */
+  --bg:                  #0c0e12;
+  --bg-surface:          #15181f;
+  --bg-elevated:         #20242c;
+  --bg-code:             #090b0e;
+  --text:                #f5f3f0;
+  --text-secondary:      #b8c0cf;
+  --text-muted:          #818898;
   --text-on-code:        #e2e8f0;
-  --border:              rgba(249,167,67,0.2);
+  --border:              rgba(255,255,255,0.1);
 
   /* ─── Typography ────────────────────────────────────────────────────── */
-  --font-heading:        'Josefin Sans', sans-serif;
-  --font-body:           'Josefin Sans', sans-serif;
+  --font-heading:        'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-body:           'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ─── Dark-default: show light logo by default ───────────────────────── */
 section footer img.logo       { display: none; }
 section footer img.logo-light { display: inline; }
 
-/* ─── Dojo light mode ─────────────────────────────────────────────────── */
+/* ─── Dojo light mode (warm forge light) ──────────────────────────────── */
 section.light {
-  --bg:             #ffffff;
-  --bg-surface:     #f4f4f4;
-  --bg-elevated:    #e8e8e8;
-  --text:           #222222;
-  --text-secondary: #444444;
-  --text-muted:     #636363;
-  --text-on-primary: #222222;
-  --border:         #dddddd;
+  --bg:             #faf8f5;
+  --bg-surface:     #ffffff;
+  --bg-elevated:    #f1ede7;
+  --text:           #1a1d24;
+  --text-secondary: #44484f;
+  --text-muted:     #6b7280;
+  --border:         #e6e1d8;
   --color-scheme:   light;
+  /* Flame orange fails contrast as heading/link text on warm white; use a
+     darker ember there. Accent (pills/markers) keeps amber with dark text. */
+  --color-primary:  #b85e1a;
 }
 
-/* Orange heading on light bg fails WCAG — use darker shade */
-section.light.section h1,
-section.light.section-logo h1 {
-  color: #9a5e0d;
-}
-
-/* ─── Title slide: charcoal to orange gradient ────────────────────────── */
+/* ─── Title slide: charcoal → flame ───────────────────────────────────── */
 section.title {
-  background: linear-gradient(135deg, #222222 0%, #2c2c2c 50%, #e08c22 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, #0c0e12 0%, #15181f 45%, #e1843b 130%);
+  color: #f5f3f0;
 }
 
 section.title h1 {
-  color: #f9a743;
-  text-shadow: 0 2px 20px rgba(249,167,67,0.3);
+  color: #e1843b;
+  text-shadow: 0 2px 24px rgba(225,132,59,0.3);
 }
 
 section.title h2 {
-  color: rgba(255,255,255,0.85);
+  color: rgba(245,243,240,0.85);
 }
 
+/* ─── End slide: fire gradient ────────────────────────────────────────── */
 section.end {
-  background: linear-gradient(135deg, #e08c22, #f9a743);
-  color: #222222;
+  background: linear-gradient(135deg, #c94f1d, #e1843b 55%, #df9a20);
+  color: #0c0e12;
 }
 
 section.end h1 {
-  color: #222222;
+  color: #0c0e12;
 }
 
-/* ─── Inverse: orange background ──────────────────────────────────────── */
+/* ─── Inverse: flame background ───────────────────────────────────────── */
 section.inverse {
   background: var(--color-primary);
-  color: #222222;
+  color: #0c0e12;
 }
 
 section.inverse h1,
 section.inverse h2,
 section.inverse h3 {
-  color: #222222;
+  color: #0c0e12;
 }

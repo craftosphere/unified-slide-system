@@ -1,11 +1,14 @@
 /* @theme brix */
 /* ═══════════════════════════════════════════════════════════════════════════
    BriX Consulting — "The Forge of Unicorns"
-   Dark-first theme · Teal accent · Poppins + Lato
+   Dark-first · Gold accent on slate-navy · Inter + JetBrains Mono
+   Refreshed to the 1.5 brand: muted brass gold (#c2a555) + slate navy (#0f172b).
+   The live site is light-first; here gold-on-navy dark is the default and the
+   site's light palette is the .light variant.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @import 'base';
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&family=Fira+Code:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
   --brand-name:          'BriX Consulting';
@@ -14,71 +17,86 @@
   --logo-width:          81px;
 
   /* ─── Palette ───────────────────────────────────────────────────────── */
-  --color-primary:       #077a7a;
-  --color-primary-light: #0aa8a7;
-  --color-primary-dark:  #046665;
-  --color-accent:        #d4a853;
-  --color-accent-light:  #e0be78;
-  --color-secondary:     #5b6abf;
-  --color-secondary-light:#7b88d4;
-  --color-secondary-dark:#3f4d9e;
-  --text-on-secondary:   #ffffff;
-  --text-on-accent:      #101418;
+  /* Gold is the hero. A slightly brighter gold-light lifts highlights on the
+     dark navy canvas; text on gold is always navy for contrast. */
+  --color-primary:       #c2a555;
+  --color-primary-light: #dcc27e;
+  --color-primary-dark:  #ae8d53;
+  --color-accent:        #c2a555;
+  --color-accent-light:  #dcc27e;
+  --color-secondary:     #334155;
+  --color-secondary-light:#475569;
+  --color-secondary-dark:#1e293b;
+  --text-on-secondary:   #f8fafc;
+  --text-on-primary:     #0f172b;
+  --text-on-accent:      #0f172b;
 
   /* ─── Color scheme ──────────────────────────────────────────────────── */
   --color-scheme:        dark;
 
-  /* ─── Dark mode as default ──────────────────────────────────────────── */
-  --bg:                  #101418;
-  --bg-surface:          #1b2229;
-  --bg-elevated:         #1e262c;
-  --bg-code:             #0d1117;
-  --text:                #e5e5e5;
-  --text-secondary:      #cbcbcb;
-  --text-muted:          rgba(255,255,255,0.5);
-  --text-on-primary:     #ffffff;
+  /* ─── Dark mode as default (slate navy) ─────────────────────────────── */
+  --bg:                  #0f172b;
+  --bg-surface:          #1a2336;
+  --bg-elevated:         #243049;
+  --bg-code:             #0b1120;
+  --text:                #f8fafc;
+  --text-secondary:      #cbd5e1;
+  --text-muted:          #8a97ab;
   --text-on-code:        #e2e8f0;
   --border:              rgba(255,255,255,0.1);
 
   /* ─── Typography ────────────────────────────────────────────────────── */
-  --font-heading:        'Poppins', sans-serif;
-  --font-body:           'Lato', sans-serif;
+  --font-heading:        'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-body:           'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-code:           'JetBrains Mono', ui-monospace, monospace;
 }
 
 /* ─── Dark-default: show light logo by default ───────────────────────── */
 section footer img.logo       { display: none; }
 section footer img.logo-light { display: inline; }
 
-/* ─── BriX light mode override ────────────────────────────────────────── */
+/* ─── BriX light mode (matches the live 1.5 site) ─────────────────────── */
 section.light {
-  --bg:             #f0f4f5;
-  --bg-surface:     #ffffff;
-  --bg-elevated:    #e8eef0;
-  --text:           #101418;
-  --text-secondary: #3a4a54;
-  --text-muted:     #7a8a94;
-  --border:         #d0dce0;
+  --bg:             #ffffff;
+  --bg-surface:     #f8fafc;
+  --bg-elevated:    #f1f5f9;
+  --text:           #020618;
+  --text-secondary: #45556c;
+  --text-muted:     #62748e;
+  --border:         #e2e8f0;
   --color-scheme:   light;
+  /* Gold fails contrast as heading/link text on white; use navy there.
+     The accent (pills/markers) stays gold with navy text. */
+  --color-primary:  #0f172b;
 }
 
-/* Light mode: show dark logo (base default handles this) */
-
-/* ─── Title slide: gradient with BriX gold + teal ─────────────────────── */
+/* ─── Title slide: navy → gold ────────────────────────────────────────── */
 section.title {
-  background: linear-gradient(135deg, #046665 0%, #077a7a 40%, #1b2229 100%);
+  background: linear-gradient(135deg, #0f172b 0%, #1a2336 55%, #c2a555 130%);
+}
+
+section.title h1 {
+  color: #c2a555;
 }
 
 section.end {
-  background: linear-gradient(135deg, #046665, #077a7a);
-  color: #ffffff;
+  background: linear-gradient(135deg, #ae8d53, #c2a555);
+  color: #0f172b;
 }
 
 section.end h1,
 section.end h2 {
-  color: #ffffff;
+  color: #0f172b;
 }
 
-/* ─── BriX accent on inverse ──────────────────────────────────────────── */
+/* ─── BriX inverse: gold panel, navy text ─────────────────────────────── */
 section.inverse {
-  background: var(--color-primary-dark);
+  background: var(--color-primary);
+  color: #0f172b;
+}
+
+section.inverse h1,
+section.inverse h2,
+section.inverse h3 {
+  color: #0f172b;
 }

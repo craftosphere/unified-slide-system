@@ -1,0 +1,115 @@
+/* @theme ctms */
+/* ═══════════════════════════════════════════════════════════════════════════
+   Code That Makes Sense (CTMS) — "Modern Editorial"
+   Dark-first midnight · Cream text · Coral accent · Fraunces serif + Inter
+   Tokens from the CTMS Modern Editorial design system. This is the theme that
+   reproduces the editorial LinkedIn carousel look (midnight/cream/coral/serif).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@import 'base';
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap');
+
+:root {
+  --brand-name:          'Code That Makes Sense';
+  --logo-url:            url('./assets/ctms-logo.svg');
+  --logo-light-url:      url('./assets/ctms-logo-light.svg');
+  --logo-width:          40px;
+
+  /* ─── Palette ───────────────────────────────────────────────────────── */
+  --color-primary:       #ff6b5b;  /* coral */
+  --color-primary-light: #ff8a7d;
+  --color-primary-dark:  #e0533f;
+  --color-accent:        #ff6b5b;
+  --color-accent-light:  #ff8a7d;
+  --color-secondary:     #2a3b52;  /* blue-grey */
+  --color-secondary-light:#3a4e6b;
+  --color-secondary-dark:#1d2a3c;
+  --text-on-secondary:   #f4ebd0;
+  --text-on-primary:     #0f1b2d;
+  /* Midnight (the canvas color) on coral — legible and on-brand. */
+  --text-on-accent:      #0f1b2d;
+
+  /* ─── Color scheme ──────────────────────────────────────────────────── */
+  --color-scheme:        dark;
+
+  /* ─── Midnight (default) ────────────────────────────────────────────── */
+  --bg:                  #0f1b2d;
+  --bg-surface:          #18283d;
+  --bg-elevated:         #2a3b52;
+  --bg-code:             #0b1422;
+  --text:                #f4ebd0;
+  --text-secondary:      #cdc4ab;
+  --text-muted:          #8696a8;
+  --text-on-code:        #f4ebd0;
+  --border:              rgba(244,235,208,0.14);
+
+  /* ─── Typography (chunky display serif + geometric sans) ────────────── */
+  --font-heading:        'Fraunces', Georgia, serif;
+  --font-body:           'Inter', ui-sans-serif, system-ui, sans-serif;
+  --heading-line-height: 1.1;
+}
+
+/* ─── Dark-default: show light logo by default ───────────────────────── */
+section footer img.logo       { display: none; }
+section footer img.logo-light { display: inline; }
+
+/* ─── Editorial headings: heavier display serif ───────────────────────── */
+section h1,
+section h2 {
+  font-weight: 700;
+}
+
+/* ─── Closing call-to-action: italic serif (carousel .ask) ────────────── */
+section em {
+  color: var(--text);
+}
+
+/* ─── CTMS light mode (cream canvas) ──────────────────────────────────── */
+section.light {
+  --bg:             #f4ebd0;
+  --bg-surface:     #fbf5e4;
+  --bg-elevated:    #ece1c4;
+  --text:           #0f1b2d;
+  --text-secondary: #3a4a5e;
+  --text-muted:     #6b7a8c;
+  --border:         #d9cba6;
+  --color-scheme:   light;
+  /* Coral as heading/link text on cream is weak; use midnight there.
+     The coral accent (pills) stays. */
+  --color-primary:  #0f1b2d;
+}
+
+/* ─── Title slide: midnight → coral ───────────────────────────────────── */
+section.title {
+  background: linear-gradient(135deg, #0f1b2d 0%, #2a3b52 55%, #ff6b5b 130%);
+}
+
+section.title h1 {
+  color: #f4ebd0;
+}
+
+section.title h2 {
+  color: rgba(244,235,208,0.8);
+}
+
+section.end {
+  background: linear-gradient(135deg, #e0533f, #ff6b5b);
+  color: #0f1b2d;
+}
+
+section.end h1,
+section.end h2 {
+  color: #0f1b2d;
+}
+
+/* ─── Inverse: coral panel ────────────────────────────────────────────── */
+section.inverse {
+  background: var(--color-primary);
+  color: #f4ebd0;
+}
+
+section.inverse h1,
+section.inverse h2,
+section.inverse h3 {
+  color: #f4ebd0;
+}

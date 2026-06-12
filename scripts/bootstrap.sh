@@ -11,7 +11,7 @@ set -euo pipefail
 
 THEME_REPO="https://github.com/craftosphere/unified-slide-system.git"
 NODE_VERSION="20"
-BRANDS=(brix craftosphere dojo)
+BRANDS=(brix craftosphere dojo nwave ctms)
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
 
