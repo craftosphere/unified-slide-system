@@ -75,14 +75,7 @@ section.light {
   --color-primary:  #8a6d00;
 }
 
-/* ─── Title slide: near-black → gold ──────────────────────────────────── */
-section.title {
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 55%, #d4a50d 130%);
-}
-
-section.title h1 {
-  color: #fac30f;
-}
+/* Title slide uses the subtle base treatment (gold title on near-black). */
 
 section.end {
   background: linear-gradient(135deg, #d4a50d, #fac30f);

@@ -54,10 +54,7 @@ section.dark {
   --color-scheme:   dark;
 }
 
-/* ─── Clean title slide ───────────────────────────────────────────────── */
-section.title {
-  background: linear-gradient(135deg, #0e3fc2 0%, #155dfc 50%, #5969fc 100%);
-}
+/* Title slide uses the subtle base treatment (canvas + soft accent glow). */
 
 section.end {
   background: linear-gradient(135deg, #155dfc, #4555d4);

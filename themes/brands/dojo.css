@@ -65,20 +65,7 @@ section.light {
   --color-primary:  #b85e1a;
 }
 
-/* ─── Title slide: charcoal → flame ───────────────────────────────────── */
-section.title {
-  background: linear-gradient(135deg, #0c0e12 0%, #15181f 45%, #e1843b 130%);
-  color: #f5f3f0;
-}
-
-section.title h1 {
-  color: #e1843b;
-  text-shadow: 0 2px 24px rgba(225,132,59,0.3);
-}
-
-section.title h2 {
-  color: rgba(245,243,240,0.85);
-}
+/* Title slide uses the subtle base treatment (flame title on dark canvas). */
 
 /* ─── End slide: fire gradient ────────────────────────────────────────── */
 section.end {

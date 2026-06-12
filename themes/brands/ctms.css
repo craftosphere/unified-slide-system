@@ -79,18 +79,7 @@ section.light {
   --color-primary:  #0f1b2d;
 }
 
-/* ─── Title slide: midnight → coral ───────────────────────────────────── */
-section.title {
-  background: linear-gradient(135deg, #0f1b2d 0%, #2a3b52 55%, #ff6b5b 130%);
-}
-
-section.title h1 {
-  color: #f4ebd0;
-}
-
-section.title h2 {
-  color: rgba(244,235,208,0.8);
-}
+/* Title slide uses the subtle base treatment (coral serif title on midnight). */
 
 section.end {
   background: linear-gradient(135deg, #e0533f, #ff6b5b);

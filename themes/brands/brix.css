@@ -70,14 +70,7 @@ section.light {
   --color-primary:  #1a1a1a;
 }
 
-/* ─── Title slide: dark gray → gold ───────────────────────────────────── */
-section.title {
-  background: linear-gradient(135deg, #1a1a1a 0%, #242424 55%, #c2a555 130%);
-}
-
-section.title h1 {
-  color: #c2a555;
-}
+/* Title slide uses the subtle base treatment (gold title on dark-gray canvas). */
 
 section.end {
   background: linear-gradient(135deg, #ae8d53, #c2a555);
