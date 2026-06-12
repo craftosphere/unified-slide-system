@@ -293,20 +293,40 @@ section table {
 }
 
 section th {
-  background: var(--color-primary);
-  color: var(--text-on-primary);
+  /* Accent (not primary) so the header pairs with --text-on-accent in both
+     light and dark modes — some brands remap --color-primary in light. */
+  background: var(--color-accent);
+  color: var(--text-on-accent);
   padding: 0.7em 1em;
   text-align: left;
   font-weight: 600;
 }
 
-section td {
+section table td {
   padding: 0.6em 1em;
-  border-bottom: 1px solid var(--border);
+  color: var(--text);
 }
 
-section tr:nth-child(even) td {
-  background: var(--bg-surface);
+section table td,
+section table th {
+  border-color: var(--border);
+}
+
+/*
+ * Row backgrounds are set on the <tr> with brand tokens. The imported default
+ * theme colors rows with light-dark(#fff, …), which flips to WHITE under the
+ * print/PDF forced-light color-scheme — that put white text on white rows in
+ * exports. These overrides are color-scheme-independent, so screen and PDF
+ * match. Zebra stripe is a faint overlay of the text color, readable on any
+ * canvas and over any slide background.
+ */
+section table tr {
+  background-color: transparent;
+  border-top: none;
+}
+
+section table tr:nth-child(2n) {
+  background-color: color-mix(in srgb, var(--text) 7%, transparent);
 }
 
 /* ─── Horizontal rules ────────────────────────────────────────────────── */
