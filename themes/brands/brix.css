@@ -24,24 +24,24 @@
   --color-primary-dark:  #ae8d53;
   --color-accent:        #c2a555;
   --color-accent-light:  #dcc27e;
-  --color-secondary:     #334155;
-  --color-secondary-light:#475569;
-  --color-secondary-dark:#1e293b;
+  --color-secondary:     #3f3f46;
+  --color-secondary-light:#52525b;
+  --color-secondary-dark:#27272a;
   --text-on-secondary:   #f8fafc;
-  --text-on-primary:     #0f172b;
-  --text-on-accent:      #0f172b;
+  --text-on-primary:     #1a1a1a;
+  --text-on-accent:      #1a1a1a;
 
   /* ─── Color scheme ──────────────────────────────────────────────────── */
   --color-scheme:        dark;
 
-  /* ─── Dark mode as default (slate navy) ─────────────────────────────── */
-  --bg:                  #0f172b;
-  --bg-surface:          #1a2336;
-  --bg-elevated:         #243049;
-  --bg-code:             #0b1120;
+  /* ─── Dark mode as default (very dark gray) ─────────────────────────── */
+  --bg:                  #1a1a1a;
+  --bg-surface:          #242424;
+  --bg-elevated:         #2e2e2e;
+  --bg-code:             #121212;
   --text:                #f8fafc;
-  --text-secondary:      #cbd5e1;
-  --text-muted:          #8a97ab;
+  --text-secondary:      #d4d4d4;
+  --text-muted:          #9a9a9a;
   --text-on-code:        #e2e8f0;
   --border:              rgba(255,255,255,0.1);
 
@@ -67,12 +67,12 @@ section.light {
   --color-scheme:   light;
   /* Gold fails contrast as heading/link text on white; use navy there.
      The accent (pills/markers) stays gold with navy text. */
-  --color-primary:  #0f172b;
+  --color-primary:  #1a1a1a;
 }
 
-/* ─── Title slide: navy → gold ────────────────────────────────────────── */
+/* ─── Title slide: dark gray → gold ───────────────────────────────────── */
 section.title {
-  background: linear-gradient(135deg, #0f172b 0%, #1a2336 55%, #c2a555 130%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #242424 55%, #c2a555 130%);
 }
 
 section.title h1 {
@@ -81,22 +81,22 @@ section.title h1 {
 
 section.end {
   background: linear-gradient(135deg, #ae8d53, #c2a555);
-  color: #0f172b;
+  color: #1a1a1a;
 }
 
 section.end h1,
 section.end h2 {
-  color: #0f172b;
+  color: #1a1a1a;
 }
 
-/* ─── BriX inverse: gold panel, navy text ─────────────────────────────── */
+/* ─── BriX inverse: gold panel, dark text ─────────────────────────────── */
 section.inverse {
   background: var(--color-primary);
-  color: #0f172b;
+  color: #1a1a1a;
 }
 
 section.inverse h1,
 section.inverse h2,
 section.inverse h3 {
-  color: #0f172b;
+  color: #1a1a1a;
 }
