@@ -74,6 +74,34 @@ paginate: true
 ---
 ```
 
+### Sharing content across decks (`@include`)
+
+A deck can pull in shared content with an include comment on its own line:
+
+```markdown
+<!-- @include: ../_partials/body.md -->
+```
+
+The path resolves relative to the including file, and includes may nest. The
+build expands them while staging. This lets many thin decks share one body —
+e.g. the same slides rendered under every brand, where only the front matter
+(`theme:`) differs:
+
+```text
+src/
+  _partials/
+    body.md          ← the shared slides (authored once)
+  brix.md            ← front matter + <!-- @include: _partials/body.md -->
+  craftosphere.md    ← front matter + <!-- @include: _partials/body.md -->
+```
+
+Files and directories whose name starts with `_` are **partials**: they are
+never built on their own, only pulled in via `@include`.
+
+> **Limitation:** includes are expanded at build time only. `npm run watch`
+> serves the raw deck files, so a thin wrapper deck previews without its
+> included body — run `npm run build` to see the composed result.
+
 ## Build artifacts
 
 The build produces one zip per repo containing the mirrored `build/` tree — an HTML and PDF per deck, plus a `resources/` directory with fonts, images, and assets bundled for offline use. Artifacts are retained for 30 days.

@@ -161,6 +161,43 @@ merge_assets_into_staging() {
   fi
 }
 
+# ─── Include expansion ───────────────────────────────────────────────────────
+# Decks may pull in shared content with an include comment on its own line:
+#   <!-- @include: ../_partials/body.md -->
+# The path is resolved relative to the including file. Files and directories
+# whose name starts with `_` are partials — they are never built on their own.
+# This lets many thin per-theme decks share one body (front matter differs only).
+
+expand_includes() {
+  local src="$1" out="$2"
+  python3 - "$src" "$out" <<'PY'
+import os, re, sys
+src, out = sys.argv[1], sys.argv[2]
+INCLUDE = re.compile(r'^[ \t]*<!--\s*@include:\s*(.+?)\s*-->[ \t]*$')
+
+def expand(path, stack):
+    rp = os.path.realpath(path)
+    if rp in stack:
+        sys.exit(f"Circular @include detected at {path}")
+    if not os.path.isfile(path):
+        sys.exit(f"@include target not found: {path}")
+    base = os.path.dirname(path)
+    chunks = []
+    with open(path, encoding='utf-8') as fh:
+        for line in fh:
+            m = INCLUDE.match(line.rstrip('\n'))
+            if m:
+                target = os.path.normpath(os.path.join(base, m.group(1)))
+                chunks.append(expand(target, stack | {rp}))
+            else:
+                chunks.append(line if line.endswith('\n') else line + '\n')
+    return ''.join(chunks)
+
+with open(out, 'w', encoding='utf-8') as fh:
+    fh.write(expand(src, frozenset()))
+PY
+}
+
 # ─── Build functions ─────────────────────────────────────────────────────────
 
 build_deck() {
@@ -179,8 +216,9 @@ build_deck() {
   # Merge assets next to the staged deck so ./assets/ resolves
   merge_assets_into_staging "${stage_dir}/assets"
 
-  # Stage a copy of the deck (no rewriting — the deck owns its front matter)
-  cp "$deck" "${stage_dir}/${name}.md"
+  # Stage the deck, expanding any @include directives (the deck owns its
+  # front matter; no theme/logo rewriting).
+  expand_includes "$deck" "${stage_dir}/${name}.md"
 
   local extra_flags=()
   if [[ "$format" != "html" ]]; then
@@ -210,7 +248,7 @@ build_all() {
   local decks=()
   while IFS= read -r -d '' f; do
     decks+=("$f")
-  done < <(find "$SRC_DIR" -type f -name '*.md' -print0)
+  done < <(find "$SRC_DIR" -type f -name '*.md' -not -path '*/_*' -print0)
 
   if [[ ${#decks[@]} -eq 0 ]]; then
     echo "Error: no .md decks found under ${SRC_DIR}"
