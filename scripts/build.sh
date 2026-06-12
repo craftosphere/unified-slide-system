@@ -1,29 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ─── Configuration ────────────────────────────────────────────────────────────
-ALL_BRANDS=(brix craftosphere dojo)
+# ─── Build every deck under src/ ──────────────────────────────────────────────
+# Each Markdown file in src/ is one build target. The deck declares its own
+# brand, size, and layout in front matter (theme:, size:, class:); the build
+# renders it once, as authored — no per-brand fan-out. Output mirrors the src/
+# tree: src/<path>/<name>.md → build/<path>/<name>.{html,pdf}.
 
-if [[ -n "${BRAND:-}" ]]; then
-  BRANDS=("$BRAND")
-else
-  BRANDS=( "${ALL_BRANDS[@]}" )
-fi
 if [[ "${SKIP_PDF:-}" == "1" ]]; then
   FORMATS=(html)
 else
   FORMATS=(html pdf)
 fi
 
-# Resolve paths — script can be called from presentation repo or theme repo
+# Resolve paths — script can be called from a presentation repo or the theme repo
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 THEME_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # The working directory (where the user calls from) is the presentation root
 PROJECT_ROOT="$(pwd)"
 
-# Deck file is always in the project root
-DECK_FILE="${PROJECT_ROOT}/presentation.md"
+# Decks live under src/; output mirrors the tree
+SRC_DIR="${PROJECT_ROOT}/src"
 BUILD_DIR="${PROJECT_ROOT}/build"
 STAGING_DIR="${PROJECT_ROOT}/.staging"
 
@@ -145,7 +143,8 @@ WRAPPER
 # ─── Asset merging ───────────────────────────────────────────────────────────
 # Theme assets (logos) live in theme/assets/.
 # Presentation assets (QR codes, images) live in ./assets/.
-# All markdown refs use ./assets/, so both sources must be merged into staging.
+# All markdown refs use ./assets/, so both sources are merged next to each
+# staged deck so the relative paths resolve regardless of the deck's depth.
 
 merge_assets_into_staging() {
   local dest="$1"
@@ -164,27 +163,24 @@ merge_assets_into_staging() {
 
 # ─── Build functions ─────────────────────────────────────────────────────────
 
-build_brand() {
-  local brand="$1"
+build_deck() {
+  local deck="$1"        # absolute path to a src/*.md file
   local format="$2"
-  local outdir="${BUILD_DIR}/${brand}"
 
-  mkdir -p "$outdir" "${STAGING_DIR}/${brand}"
+  local rel="${deck#"${SRC_DIR}/"}"   # path relative to src/, e.g. linkedin/critic.md
+  local reldir name
+  reldir="$(dirname "$rel")"          # linkedin   (or "." for a root-level deck)
+  name="$(basename "${rel%.md}")"     # critic
 
-  # Merge theme + project assets so all relative paths resolve
-  merge_assets_into_staging "${STAGING_DIR}/${brand}/assets"
+  local stage_dir="${STAGING_DIR}/${reldir}"
+  local out_dir="${BUILD_DIR}/${reldir}"
+  mkdir -p "$stage_dir" "$out_dir"
 
-  # Create per-brand copy with theme and logo swapped
-  local staged="${STAGING_DIR}/${brand}/presentation.md"
-  sed -e "s/^theme: .*/theme: ${brand}/" \
-      -e "s/craftosphere-logo-light\.svg/${brand}-logo-light.svg/g" \
-      -e "s/craftosphere-logo\.svg/${brand}-logo.svg/g" \
-      "$DECK_FILE" > "$staged"
+  # Merge assets next to the staged deck so ./assets/ resolves
+  merge_assets_into_staging "${stage_dir}/assets"
 
-  # Derive output filename from project directory name
-  local repo_name
-  repo_name=$(basename "${PROJECT_ROOT}")
-  local out_name="${repo_name}"
+  # Stage a copy of the deck (no rewriting — the deck owns its front matter)
+  cp "$deck" "${stage_dir}/${name}.md"
 
   local extra_flags=()
   if [[ "$format" != "html" ]]; then
@@ -197,31 +193,40 @@ build_brand() {
     --html \
     --allow-local-files \
     "${extra_flags[@]}" \
-    -o "${outdir}/${out_name}.${format}" \
-    "$staged"; then
-    echo "  ⚠  ${brand}/${format} failed (may need a browser for PDF export)"
+    -o "${out_dir}/${name}.${format}" \
+    "${stage_dir}/${name}.md"; then
+    echo "  ⚠  ${rel%.md}.${format} failed (may need a browser for PDF export)"
   fi
 }
 
 build_all() {
-  if [[ ! -f "$DECK_FILE" ]]; then
-    echo "Error: presentation.md not found in ${PROJECT_ROOT}"
-    echo "Place your presentation.md in the project root."
+  if [[ ! -d "$SRC_DIR" ]]; then
+    echo "Error: src/ not found in ${PROJECT_ROOT}"
+    echo "Place your decks as Markdown files under src/. Output mirrors the src/ tree."
+    exit 1
+  fi
+
+  # Collect decks recursively
+  local decks=()
+  while IFS= read -r -d '' f; do
+    decks+=("$f")
+  done < <(find "$SRC_DIR" -type f -name '*.md' -print0)
+
+  if [[ ${#decks[@]} -eq 0 ]]; then
+    echo "Error: no .md decks found under ${SRC_DIR}"
     exit 1
   fi
 
   echo "Cleaning build/..."
-  for brand in "${BRANDS[@]}"; do
-    rm -rf "${BUILD_DIR:?}/${brand}"
-  done
-  rm -rf "${STAGING_DIR}"
+  rm -rf "${BUILD_DIR}" "${STAGING_DIR}"
 
   setup_browser
 
-  for brand in "${BRANDS[@]}"; do
+  for deck in "${decks[@]}"; do
+    local rel="${deck#"${SRC_DIR}/"}"
     for format in "${FORMATS[@]}"; do
-      echo "Building ${brand}/${format}..."
-      build_brand "$brand" "$format"
+      echo "Building ${rel%.md}.${format}..."
+      build_deck "$deck" "$format"
     done
   done
 
@@ -233,7 +238,7 @@ build_all() {
   python3 "${SCRIPT_DIR}/bundle-resources.py" "${BUILD_DIR}" "${THEME_ASSETS_DIR}" "${PROJECT_ASSETS_DIR}"
 
   echo ""
-  echo "Done. Output in ${BUILD_DIR}/"
+  echo "Done. Output in ${BUILD_DIR}/ (mirrors src/)."
 }
 
 # ─── Main ─────────────────────────────────────────────────────────────────────

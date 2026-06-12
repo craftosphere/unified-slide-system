@@ -372,7 +372,8 @@ EOF
 write_presentation() {
   local brand="$DEFAULT_BRAND"
 
-  cat > presentation.md << EOF
+  mkdir -p src
+  cat > src/presentation.md << EOF
 ---
 marp: true
 theme: ${brand}
@@ -452,7 +453,7 @@ cd ${REPO_NAME}"
 
 ## CI/CD
 
-Pushes to \`main\` and pull requests trigger the build pipeline (lint + build all brands). Pushing a tag also creates a GitHub Release with per-brand zips attached.
+Pushes to \`main\` and pull requests trigger the build pipeline (lint + build every deck in \`src/\`). Pushing a tag also creates a GitHub Release with the build zip attached.
 
 See the [theme CI/CD docs](https://github.com/craftosphere/unified-slide-system/blob/main/CICD.md) for details."
   fi
@@ -471,20 +472,20 @@ npm run setup
 npm run build
 \`\`\`
 
-Output is in \`build/{brand}/\` — one subfolder per brand, each containing an HTML and PDF version.
+Output is in \`build/\`, mirroring the \`src/\` tree — each deck becomes \`build/<path>/<name>.{html,pdf}\`.
 
 ## Commands
 
 | Command              | Description                                        |
 | -------------------- | -------------------------------------------------- |
 | \`npm run setup\`      | Install theme dependencies and Playwright Chromium |
-| \`npm run build\`      | Build all brands as HTML + PDF                     |
-| \`npm run build:html\` | Build all brands as HTML only (faster, no browser) |
-| \`npm run watch\`      | Start dev server with live reload (default brand)  |
+| \`npm run build\`      | Build every deck in \`src/\` as HTML + PDF         |
+| \`npm run build:html\` | Build every deck as HTML only (faster, no browser) |
+| \`npm run watch\`      | Start dev server with live reload                  |
 | \`npm run clean\`      | Remove build and staging directories               |
 | \`npm run lint\`       | Run Markdown lint and spell check                  |
 
-To preview a specific brand in watch mode: \`BRAND=brix npm run watch\`.
+To serve only one subfolder in watch mode: \`npm run watch src/<folder>\`.
 
 ## Assets
 
@@ -494,6 +495,13 @@ All image paths in the Markdown use \`./assets/\`. The build system merges two d
 - **\`assets/\`** — Presentation-specific images (QR codes, photos). Managed here.
 
 Both are available at build time and in watch mode. If a filename exists in both, the project file takes precedence.
+
+## Decks
+
+Every Markdown file under \`src/\` is a build target. Add more decks (e.g.
+\`src/talks/intro.md\`, \`src/linkedin/carousel.md\`) and each builds to a matching
+path under \`build/\`. Each deck owns its front matter, so different decks can use
+different brands, sizes, and layouts in the same repo.
 
 ## Frontmatter
 
@@ -508,7 +516,7 @@ footer: '<img src="./assets/${DEFAULT_BRAND}-logo.svg" class="logo"><img src="./
 ---
 \`\`\`
 
-Change \`theme:\` to switch brands. The build script handles logo filename swapping automatically.${ci_section}
+Each deck declares its own \`theme:\` (and optional \`size:\` / \`class:\`). Change \`theme:\` to switch brands, and point the footer logo at the matching brand asset.${ci_section}
 EOF
 }
 
@@ -605,7 +613,7 @@ print_summary() {
   echo "    npm run watch          # start dev server"
   echo "    npm run build          # build all brands"
   echo ""
-  echo "  Edit presentation.md to write your slides."
+  echo "  Edit src/presentation.md to write your slides (add more decks under src/)."
   echo "  Put images in assets/."
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 }

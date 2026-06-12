@@ -1,15 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ─── Configuration ────────────────────────────────────────────────────────────
-BRAND="${BRAND:-}"
+# ─── Dev server with live reload ──────────────────────────────────────────────
+# Serves the decks under src/ (or a subdirectory passed as the first argument)
+# with live reload. Each deck declares its own brand/size/layout in front
+# matter — there is no brand staging. Usage:
+#   bash theme/scripts/watch.sh            # serve all of src/
+#   bash theme/scripts/watch.sh src/linkedin
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 THEME_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 PROJECT_ROOT="$(pwd)"
 
-DECK_FILE="${PROJECT_ROOT}/presentation.md"
+SRC_DIR="${PROJECT_ROOT}/src"
 THEMES_DIR="${THEME_ROOT}/themes"
+THEME_ASSETS_DIR="${THEME_ROOT}/assets"
+PROJECT_ASSETS_DIR="${PROJECT_ROOT}/assets"
 
 MARP_BIN="${THEME_ROOT}/node_modules/.bin/marp"
 if [[ ! -x "$MARP_BIN" ]]; then
@@ -21,89 +27,69 @@ if [[ ! -x "$MARP_BIN" ]]; then
   fi
 fi
 
-if [[ ! -f "$DECK_FILE" ]]; then
-  echo "Error: presentation.md not found in ${PROJECT_ROOT}"
+if [[ ! -d "$SRC_DIR" ]]; then
+  echo "Error: src/ not found in ${PROJECT_ROOT}"
+  echo "Place your decks as Markdown files under src/."
   exit 1
 fi
 
-# ─── Asset merging ───────────────────────────────────────────────────────────
-# Theme assets (logos) live in theme/assets/.
-# Presentation assets (QR codes, images) live in ./assets/.
-# All markdown refs use ./assets/, so both sources must be reachable there.
-
-CREATED_SYMLINKS=()
-
-merge_theme_assets_into_project() {
-  # Symlink individual theme asset files into the project's assets dir
-  # so that both theme logos and presentation images resolve from ./assets/.
-  # Project files take precedence — existing files are never overwritten.
-  if [[ ! -d "${THEME_ROOT}/assets" ]]; then
-    return
-  fi
-
-  mkdir -p "${PROJECT_ROOT}/assets"
-
-  for f in "${THEME_ROOT}/assets/"*; do
-    [[ -e "$f" ]] || continue
-    local name
-    name=$(basename "$f")
-    local target="${PROJECT_ROOT}/assets/${name}"
-    if [[ ! -e "$target" ]]; then
-      ln -s "$f" "$target"
-      CREATED_SYMLINKS+=("$target")
-    fi
-  done
-}
-
-merge_assets_into_staging() {
-  local dest="$1"
-  mkdir -p "$dest"
-
-  # Theme assets first (logos)
-  if [[ -d "${THEME_ROOT}/assets" ]]; then
-    cp -r "${THEME_ROOT}/assets/." "$dest/"
-  fi
-
-  # Project assets overlay (presentation-specific images take precedence)
-  if [[ -d "${PROJECT_ROOT}/assets" ]]; then
-    cp -r "${PROJECT_ROOT}/assets/." "$dest/"
-  fi
-}
-
-# ─── Brand staging ────────────────────────────────────────────────────────────
-INPUT="$DECK_FILE"
-
-if [[ -n "$BRAND" ]]; then
-  STAGING_DIR="${PROJECT_ROOT}/.staging/${BRAND}"
-  mkdir -p "$STAGING_DIR"
-
-  merge_assets_into_staging "${STAGING_DIR}/assets"
-
-  sed -e "s/^theme: .*/theme: ${BRAND}/" \
-      -e "s/craftosphere-logo-light\.svg/${BRAND}-logo-light.svg/g" \
-      -e "s/craftosphere-logo\.svg/${BRAND}-logo.svg/g" \
-      "$DECK_FILE" > "${STAGING_DIR}/presentation.md"
-
-  INPUT="${STAGING_DIR}/presentation.md"
-  echo "Watching ${BRAND} brand (staged copy — restart to pick up edits)"
-else
-  echo "Watching default brand from presentation.md"
-
-  merge_theme_assets_into_project
+# Directory to serve (default: all of src/)
+SERVE_DIR="${1:-$SRC_DIR}"
+if [[ "$SERVE_DIR" != /* ]]; then
+  SERVE_DIR="${PROJECT_ROOT}/${SERVE_DIR}"
+fi
+if [[ ! -d "$SERVE_DIR" ]]; then
+  echo "Error: directory not found: $SERVE_DIR"
+  exit 1
 fi
 
-# ─── Cleanup ─────────────────────────────────────────────────────────────────
+# ─── Asset resolution ─────────────────────────────────────────────────────────
+# Markdown refs use ./assets/, resolved relative to each deck. Symlink a merged
+# assets dir (theme logos + project assets) next to every deck so the dev server
+# resolves images at any depth. All symlinks are removed on exit.
+
+CREATED_LINKS=()
+
+setup_assets() {
+  mkdir -p "${PROJECT_ASSETS_DIR}"
+
+  # Symlink theme asset files into the project assets dir (project files win).
+  if [[ -d "${THEME_ASSETS_DIR}" ]]; then
+    for f in "${THEME_ASSETS_DIR}/"*; do
+      [[ -e "$f" ]] || continue
+      local name target
+      name="$(basename "$f")"
+      target="${PROJECT_ASSETS_DIR}/${name}"
+      if [[ ! -e "$target" ]]; then
+        ln -s "$f" "$target"
+        CREATED_LINKS+=("$target")
+      fi
+    done
+  fi
+
+  # Symlink an `assets` dir into every src directory that holds a deck.
+  local dir link
+  while IFS= read -r dir; do
+    [[ "$dir" == "$PROJECT_ASSETS_DIR" ]] && continue
+    link="${dir}/assets"
+    if [[ ! -e "$link" ]]; then
+      ln -s "$PROJECT_ASSETS_DIR" "$link"
+      CREATED_LINKS+=("$link")
+    fi
+  done < <(find "$SRC_DIR" -type f -name '*.md' -exec dirname {} \; | sort -u)
+}
+
 cleanup() {
-  for link in "${CREATED_SYMLINKS[@]+"${CREATED_SYMLINKS[@]}"}"; do
+  for link in "${CREATED_LINKS[@]+"${CREATED_LINKS[@]}"}"; do
     rm -f "$link"
   done
 }
 trap cleanup EXIT
 
-# ─── Dev server ───────────────────────────────────────────────────────────────
-SERVE_DIR="$(dirname "$INPUT")"
+setup_assets
 
-echo "Starting dev server..."
+# ─── Dev server ───────────────────────────────────────────────────────────────
+echo "Watching ${SERVE_DIR#"$PROJECT_ROOT/"}/ — decks render with the brand in their front matter."
 "$MARP_BIN" \
   --theme-set "$THEMES_DIR" \
   --html \

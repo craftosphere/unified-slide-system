@@ -8,11 +8,6 @@ on:
         required: false
         type: string
         default: ""
-      brands:
-        description: "JSON array of brands to build (default: all)"
-        required: false
-        type: string
-        default: '["brix", "craftosphere", "dojo"]'
 
 env:
   NODE_VERSION: "20"
@@ -46,9 +41,6 @@ jobs:
   build:
     needs: lint
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        brand: ${{ fromJson(inputs.brands) }}
 
     steps:
       - name: Checkout presentation repo with theme submodule
@@ -78,39 +70,29 @@ jobs:
         working-directory: theme
         run: npx playwright install --with-deps chromium
 
-      - name: Build ${{ matrix.brand }}
-        env:
-          BRAND: ${{ matrix.brand }}
+      - name: Build all decks under src/
         run: bash theme/scripts/build.sh
 
       - name: Verify build output
         run: |
-          REPO_NAME="${GITHUB_REPOSITORY##*/}"
-          BRAND="${{ matrix.brand }}"
+          html_count=$(find build -type f -name '*.html' | wc -l | tr -d ' ')
+          pdf_count=$(find build -type f -name '*.pdf' | wc -l | tr -d ' ')
+          echo "Built ${html_count} HTML and ${pdf_count} PDF file(s):"
+          find build -type f \( -name '*.html' -o -name '*.pdf' \) -print
+          if [[ "$html_count" -eq 0 ]]; then
+            echo "✗ No HTML output produced — build failed."
+            exit 1
+          fi
 
-          for ext in html pdf; do
-            file="build/${BRAND}/${REPO_NAME}.${ext}"
-            if [[ -f "$file" ]]; then
-              echo "✓ $file ($(du -h "$file" | cut -f1))"
-            else
-              echo "✗ $file — missing!"
-              exit 1
-            fi
-          done
-
-      - name: Package ${{ matrix.brand }} artifact
+      - name: Package build artifact
         run: |
           REPO_NAME="${GITHUB_REPOSITORY##*/}"
-          BRAND="${{ matrix.brand }}"
-          (
-            cd "build/${BRAND}"
-            zip -r "../../${REPO_NAME}-${BRAND}.zip" .
-          )
+          (cd build && zip -r "../${REPO_NAME}.zip" .)
 
-      - name: Upload ${{ matrix.brand }} artifact
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.brand }}
+          name: build
           path: "*.zip"
           retention-days: 30
           if-no-files-found: error
@@ -126,7 +108,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download all brand artifacts
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           path: artifacts
