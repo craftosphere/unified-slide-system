@@ -10,7 +10,9 @@ set -euo pipefail
 # ─────────────────────────────────────────────────────────────────────────────
 
 THEME_REPO="https://github.com/craftosphere/unified-slide-system.git"
+THEME_REF="v2"
 NODE_VERSION="20"
+NODE_VERSION_PIN="20.20.1"
 BRANDS=(brix craftosphere dojo nwave ctms)
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -190,8 +192,8 @@ create_repo() {
 # ─── Theme submodule ────────────────────────────────────────────────────────
 
 add_submodule() {
-  info "Adding theme submodule..."
-  git submodule add "$THEME_REPO" theme
+  info "Adding theme submodule (pinned to ${THEME_REF})..."
+  git submodule add -b "$THEME_REF" "$THEME_REPO" theme
   ok "Theme submodule added"
 }
 
@@ -205,6 +207,10 @@ build/
 node_modules/
 .staging/
 EOF
+}
+
+write_node_version() {
+  echo "$NODE_VERSION_PIN" > .node-version
 }
 
 write_package_json() {
@@ -302,10 +308,18 @@ write_cspell_config() {
     "brix",
     "Dojo",
     "dojo",
+    "nwave",
+    "nWave",
+    "ctms",
     "paginate",
     "frontmatter",
+    "unsplash",
     "Fira",
-    "Lato"
+    "Lato",
+    "Grotesk",
+    "Fraunces",
+    "mdlint",
+    "CICD"
   ],
   "dictionaries": ["en-gb", "en-us"],
   "allowCompoundWords": true
@@ -361,11 +375,11 @@ on:
 
 jobs:
   build:
-    uses: craftosphere/unified-slide-system/.github/workflows/build-presentation.yml@v1
+    uses: craftosphere/unified-slide-system/.github/workflows/build-presentation.yml@v2
     permissions:
       contents: write
     with:
-      theme-ref: v1
+      theme-ref: v2
 EOF
 }
 
@@ -630,6 +644,7 @@ main() {
 
   info "Scaffolding files..."
   write_gitignore
+  write_node_version
   write_package_json
   write_markdownlint_config
   write_cspell_config
