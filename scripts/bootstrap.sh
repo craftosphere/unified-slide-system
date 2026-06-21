@@ -193,8 +193,12 @@ create_repo() {
 
 add_submodule() {
   info "Adding theme submodule (pinned to ${THEME_REF})..."
-  git submodule add -b "$THEME_REF" "$THEME_REPO" theme
-  ok "Theme submodule added"
+  # THEME_REF is a tag, so it can't be tracked with `-b` (branches only).
+  # Add the submodule, check out the tag, then stage the pinned commit.
+  git submodule add "$THEME_REPO" theme
+  git -C theme checkout --quiet "$THEME_REF"
+  git add theme
+  ok "Theme submodule added (pinned to ${THEME_REF})"
 }
 
 # ─── File scaffolding ───────────────────────────────────────────────────────
