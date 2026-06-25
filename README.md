@@ -16,6 +16,22 @@ Before committing, the script runs lint checks. If they fail (e.g. unknown words
 
 Prerequisites: `git`, `node` 20+, `npm`. The GitHub CLI (`gh`) is required only if you choose to create a remote repo.
 
+## Upgrade an Existing Presentation
+
+From the root of an existing presentation repo, pull the theme and tooling up to the latest version:
+
+```bash
+bash <(curl -sL https://raw.githubusercontent.com/craftosphere/unified-slide-system/main/scripts/upgrade.sh)
+```
+
+(or `npm run upgrade` once the repo has the upgrade script wired in). Pass a tag to target a specific version: `npm run upgrade v3`.
+
+The upgrade is conservative — it bumps the `theme` submodule to the latest major tag, updates the CI workflow's theme refs to match, and refreshes the theme-managed npm scripts. It never touches your decks, linting, spell, or commit config. Changes are staged but not committed, so you can review with `git diff --staged` before committing.
+
+## Building
+
+Builds are **incremental** by default: `npm run build` rebuilds only the decks whose source changed (hashes are tracked in `build/.build-manifest`, and `@include` partials are part of the hash). Use `npm run build:clean` (or `build.sh --clean`) to wipe `build/` and rebuild everything — needed after changing a brand asset or the theme itself, which the source hash doesn't track.
+
 ---
 
 # CI/CD Setup
