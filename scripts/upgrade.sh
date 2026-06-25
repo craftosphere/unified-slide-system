@@ -53,16 +53,21 @@ check_repo() {
 
 resolve_target() {
   info "Fetching theme tags..."
-  git -C "$THEME_DIR" fetch --tags --quiet origin
+  # --force is required: a moved tag (e.g. a major tag fast-forwarded to a new
+  # release) would otherwise be "rejected ... would clobber existing tag" and,
+  # under `set -e`, abort the whole upgrade before anything happens.
+  git -C "$THEME_DIR" fetch --tags --force --quiet origin
 
   if [[ -n "${1:-}" ]]; then
     TARGET="$1"
     git -C "$THEME_DIR" rev-parse --verify --quiet "refs/tags/${TARGET}^{commit}" >/dev/null \
       || die "Tag '${TARGET}' not found in the theme repo."
   else
-    # Latest major tag (v1, v2, …). Ignore release-candidate / point tags.
-    TARGET="$(git -C "$THEME_DIR" tag -l 'v*' --sort=-v:refname \
-      | grep -E '^v[0-9]+$' | head -1)"
+    # Latest release tag by version order — majors (v2), minors (v2.1), and
+    # patches (v2.1.0) all qualify; pre-release tags (v2.1.0rc1) are ignored.
+    # Ascending sort + tail (not desc + head) avoids a SIGPIPE under pipefail.
+    TARGET="$(git -C "$THEME_DIR" tag -l 'v*' --sort=v:refname \
+      | grep -E '^v[0-9]+(\.[0-9]+)*$' | tail -n1)"
     [[ -n "$TARGET" ]] || die "Could not determine the latest theme tag."
   fi
 
