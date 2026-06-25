@@ -225,10 +225,12 @@ write_package_json() {
   "description": "${REPO_DESCRIPTION:-${TITLE}}",
   "scripts": {
     "build": "bash theme/scripts/build.sh",
+    "build:clean": "bash theme/scripts/build.sh --clean",
     "build:html": "SKIP_PDF=1 bash theme/scripts/build.sh",
     "watch": "bash theme/scripts/watch.sh",
     "setup": "cd theme && npm install && npx playwright install chromium",
     "clean": "rm -rf ./build/ ./.staging/",
+    "upgrade": "bash theme/scripts/upgrade.sh",
     "lint": "npm run lint:md && npm run lint:spell",
     "lint:md": "markdownlint-cli2 '**/*.md'",
     "lint:file:md": "markdownlint-cli2",
@@ -280,6 +282,8 @@ write_markdownlint_config() {
     // Allow blank lines around HTML blocks
     "MD014": false
   },
+  // Title-case headings. Exempt one heading with a disable comment, e.g.
+  //   <!-- markdownlint-disable-next-line titlecase -->
   "customRules": ["./theme/mdlint-rules/titlecase.js"],
   "ignores": [
     "node_modules",
@@ -494,16 +498,36 @@ Output is in \`build/\`, mirroring the \`src/\` tree — each deck becomes \`bui
 
 ## Commands
 
-| Command              | Description                                        |
-| -------------------- | -------------------------------------------------- |
-| \`npm run setup\`      | Install theme dependencies and Playwright Chromium |
-| \`npm run build\`      | Build every deck in \`src/\` as HTML + PDF         |
-| \`npm run build:html\` | Build every deck as HTML only (faster, no browser) |
-| \`npm run watch\`      | Start dev server with live reload                  |
-| \`npm run clean\`      | Remove build and staging directories               |
-| \`npm run lint\`       | Run Markdown lint and spell check                  |
+| Command               | Description                                          |
+| --------------------- | ---------------------------------------------------- |
+| \`npm run setup\`       | Install theme dependencies and Playwright Chromium   |
+| \`npm run build\`       | Build decks in \`src/\` (incremental — only changed) |
+| \`npm run build:clean\` | Wipe \`build/\` first, then rebuild every deck       |
+| \`npm run build:html\`  | Build every deck as HTML only (faster, no browser)   |
+| \`npm run watch\`       | Start dev server with live reload                    |
+| \`npm run clean\`       | Remove build and staging directories                 |
+| \`npm run upgrade\`     | Upgrade the theme submodule + tooling to latest      |
+| \`npm run lint\`        | Run Markdown lint and spell check                    |
+
+Builds are **incremental** by default: each deck is rebuilt only when its source
+(including any \`@include\` partials) changes. A hash manifest is kept in
+\`build/.build-manifest\`. Changing a brand asset or the theme isn't tracked by the
+hash — run \`npm run build:clean\` after those.
 
 To serve only one subfolder in watch mode: \`npm run watch src/<folder>\`.
+
+## Linting
+
+\`npm run lint\` runs Markdown lint (including a title-case rule for headings) and
+a spell check. To exempt a single heading from the **title-case** rule — e.g. an
+intentional lowercase brand name — add a standard markdownlint disable comment:
+
+\`\`\`markdown
+<!-- markdownlint-disable-next-line titlecase -->
+# kebab-case is intentional here
+\`\`\`
+
+Or inline on the same line: \`# my heading <!-- markdownlint-disable-line titlecase -->\`.
 
 ## Assets
 
