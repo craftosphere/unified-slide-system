@@ -13,6 +13,25 @@ else
   FORMATS=(html pdf)
 fi
 
+# ─── Options ─────────────────────────────────────────────────────────────────
+# Builds are incremental by default: each artifact is rebuilt only when the
+# expanded source hash is missing or changed (see the build manifest below).
+# Pass --clean to wipe the build/ and .staging/ trees first and rebuild all.
+CLEAN=0
+for arg in "$@"; do
+  case "$arg" in
+    --clean) CLEAN=1 ;;
+    -h|--help)
+      echo "Usage: build.sh [--clean]"
+      echo "  --clean   Delete build/ and .staging/ before building (full rebuild)."
+      echo "  (default) Incremental — rebuild only decks whose source hash changed."
+      echo "  SKIP_PDF=1 env var builds HTML only."
+      exit 0
+      ;;
+    *) echo "Unknown option: $arg (try --help)" >&2; exit 1 ;;
+  esac
+done
+
 # Resolve paths — script can be called from a presentation repo or the theme repo
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 THEME_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -24,6 +43,11 @@ PROJECT_ROOT="$(pwd)"
 SRC_DIR="${PROJECT_ROOT}/src"
 BUILD_DIR="${PROJECT_ROOT}/build"
 STAGING_DIR="${PROJECT_ROOT}/.staging"
+
+# Incremental-build manifest: maps each artifact key (rel|format) to the
+# sha256 of the deck's *expanded* source (after @include expansion, so editing
+# a shared partial busts the cache). Lives in build/ as a local cache.
+MANIFEST_FILE="${BUILD_DIR}/.build-manifest"
 
 # Theme assets and themes come from the theme repo
 THEMES_DIR="${THEME_ROOT}/themes"
@@ -198,27 +222,39 @@ with open(out, 'w', encoding='utf-8') as fh:
 PY
 }
 
+# ─── Incremental-build manifest ──────────────────────────────────────────────
+# Portable across bash 3.2 (macOS) — no associative arrays. The manifest is a
+# tab-delimited file (`<sha256>\t<key>`); lookups and updates go through awk so
+# deck paths may contain spaces (but never tabs).
+
+hash_file() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" | cut -d' ' -f1
+  else
+    shasum -a 256 "$1" | cut -d' ' -f1
+  fi
+}
+
+manifest_get() {   # key → prints the stored hash, or nothing
+  local key="$1"
+  [[ -f "$MANIFEST_FILE" ]] || return 0
+  awk -F'\t' -v k="$key" '$2 == k { print $1; exit }' "$MANIFEST_FILE"
+}
+
+manifest_set() {   # key hash → upsert the entry
+  local key="$1" hash="$2" tmp
+  tmp="$(mktemp)"
+  if [[ -f "$MANIFEST_FILE" ]]; then
+    awk -F'\t' -v k="$key" '$2 != k' "$MANIFEST_FILE" > "$tmp"
+  fi
+  printf '%s\t%s\n' "$hash" "$key" >> "$tmp"
+  mv "$tmp" "$MANIFEST_FILE"
+}
+
 # ─── Build functions ─────────────────────────────────────────────────────────
 
-build_deck() {
-  local deck="$1"        # absolute path to a src/*.md file
-  local format="$2"
-
-  local rel="${deck#"${SRC_DIR}/"}"   # path relative to src/, e.g. linkedin/critic.md
-  local reldir name
-  reldir="$(dirname "$rel")"          # linkedin   (or "." for a root-level deck)
-  name="$(basename "${rel%.md}")"     # critic
-
-  local stage_dir="${STAGING_DIR}/${reldir}"
-  local out_dir="${BUILD_DIR}/${reldir}"
-  mkdir -p "$stage_dir" "$out_dir"
-
-  # Merge assets next to the staged deck so ./assets/ resolves
-  merge_assets_into_staging "${stage_dir}/assets"
-
-  # Stage the deck, expanding any @include directives (the deck owns its
-  # front matter; no theme/logo rewriting).
-  expand_includes "$deck" "${stage_dir}/${name}.md"
+render_deck() {
+  local staged="$1" out_dir="$2" name="$3" format="$4" rel="$5"
 
   local extra_flags=()
   if [[ "$format" != "html" ]]; then
@@ -232,8 +268,9 @@ build_deck() {
     --allow-local-files \
     "${extra_flags[@]}" \
     -o "${out_dir}/${name}.${format}" \
-    "${stage_dir}/${name}.md"; then
+    "$staged"; then
     echo "  ⚠  ${rel%.md}.${format} failed (may need a browser for PDF export)"
+    return 1
   fi
 }
 
@@ -255,22 +292,68 @@ build_all() {
     exit 1
   fi
 
-  echo "Cleaning build/..."
-  rm -rf "${BUILD_DIR}" "${STAGING_DIR}"
+  if [[ "$CLEAN" == "1" ]]; then
+    echo "Cleaning build/ and .staging/ (--clean)..."
+    rm -rf "${BUILD_DIR}" "${STAGING_DIR}"
+  fi
+  # Staging is always transient — start from a clean slate.
+  rm -rf "${STAGING_DIR}"
+  mkdir -p "${BUILD_DIR}"
 
   setup_browser
 
+  local built_any=0
   for deck in "${decks[@]}"; do
     local rel="${deck#"${SRC_DIR}/"}"
+    local reldir name stage_dir out_dir staged src_hash assets_merged
+    reldir="$(dirname "$rel")"
+    name="$(basename "${rel%.md}")"
+    stage_dir="${STAGING_DIR}/${reldir}"
+    out_dir="${BUILD_DIR}/${reldir}"
+    mkdir -p "$stage_dir" "$out_dir"
+
+    # Expand @include directives first — the hash is over the expanded source,
+    # so a change in a shared partial rebuilds every deck that includes it.
+    staged="${stage_dir}/${name}.md"
+    expand_includes "$deck" "$staged"
+    src_hash="$(hash_file "$staged")"
+    assets_merged=0
+
     for format in "${FORMATS[@]}"; do
+      local key="${rel}|${format}"
+      local out_file="${out_dir}/${name}.${format}"
+
+      if [[ "$(manifest_get "$key")" == "$src_hash" && -f "$out_file" ]]; then
+        echo "Up to date: ${rel%.md}.${format}"
+        continue
+      fi
+
+      # Merge assets next to the staged deck (once per deck) so ./assets/ resolves
+      if [[ "$assets_merged" == "0" ]]; then
+        merge_assets_into_staging "${stage_dir}/assets"
+        assets_merged=1
+      fi
+
       echo "Building ${rel%.md}.${format}..."
-      build_deck "$deck" "$format"
+      if render_deck "$staged" "$out_dir" "$name" "$format" "$rel"; then
+        manifest_set "$key" "$src_hash"
+        built_any=1
+      fi
+      # On failure the hash is not recorded, so the next run retries the artifact.
     done
   done
 
   rm -rf "${STAGING_DIR}"
 
-  # Post-build: bundle resources for offline use (HTML only)
+  if [[ "$built_any" == "0" ]]; then
+    echo ""
+    echo "Everything up to date. Nothing to build (use --clean to force a rebuild)."
+    return 0
+  fi
+
+  # Post-build: bundle resources for offline use (HTML only). Idempotent — once
+  # an HTML is bundled it has no remaining ./assets/ or remote refs to rewrite,
+  # so re-running over the whole tree leaves already-bundled decks untouched.
   echo ""
   echo "Bundling resources for offline use..."
   python3 "${SCRIPT_DIR}/bundle-resources.py" "${BUILD_DIR}" "${THEME_ASSETS_DIR}" "${PROJECT_ASSETS_DIR}"

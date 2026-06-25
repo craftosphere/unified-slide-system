@@ -4,6 +4,7 @@
   "description": "Multi-brand Marp slide theme with composable column layouts and arc boundaries",
   "scripts": {
     "build": "bash scripts/build.sh",
+    "build:clean": "bash scripts/build.sh --clean",
     "build:html": "SKIP_PDF=1 bash scripts/build.sh",
     "setup": "npx playwright install chromium",
     "clean": "rm -rf ./build/ ./.staging/"
